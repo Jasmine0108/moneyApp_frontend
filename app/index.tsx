@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View} from 'react-native';
+import { StyleSheet} from 'react-native';
 import { Link } from 'expo-router';
 import appConfig from '../tamagui.config'
-import { TamaguiProvider, createTamagui } from 'tamagui' 
+import { TamaguiProvider, createTamagui, View } from 'tamagui' 
+
 
 // you usually export this from a tamagui.config.ts file
 const tamaguiConfig = createTamagui(appConfig)
@@ -17,9 +18,11 @@ export default function mainScreen(){
   return (
     <TamaguiProvider config={tamaguiConfig}>
       <View style={styles.container}>
-        <Text>test</Text>
         <Link href="/group">go to group</Link>
+        <View my='1%'/>
         <Link href="/login">login</Link>
+        <View my='1%'/>
+        <Link href="/register">register</Link>
       </View>
     </TamaguiProvider>
     
