@@ -10,7 +10,7 @@ export const Colors = {
   text: '#000000',
   button: '#81C78C',
   bg: '#FFE071',
-  input: '#FFFFFF',
+  input_bg: '#FFFFFF',
   /*
   light: {
     text: '#11181C',
