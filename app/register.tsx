@@ -11,6 +11,7 @@ export default function loginScreen(){
      
         {input.map((content) => (
           <Input
+            key={content}
             placeholder={content}
             bg={Colors.input_bg}
             width='80%'

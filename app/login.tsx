@@ -10,6 +10,7 @@ export default function loginScreen(){
       <Text fontSize='36' color={Colors.text} margin='15%'>Monify</Text>
       {input.map((content) => (
         <Input
+          key={content}
           placeholder={content}
           bg={Colors.input_bg}
           width='80%'
