@@ -19,6 +19,7 @@ export default function mainScreen(){
       <View style={styles.container}>
         <Text>test</Text>
         <Link href="/group">go to group</Link>
+        <Link href="/login">login</Link>
       </View>
     </TamaguiProvider>
     
