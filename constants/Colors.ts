@@ -11,6 +11,7 @@ export const Colors = {
   button: '#81C78C',
   bg: '#FFE071',
   input_bg: '#FFFFFF',
+  error: '#FF0000',
   /*
   light: {
     text: '#11181C',
