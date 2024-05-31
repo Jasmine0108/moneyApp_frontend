@@ -10,6 +10,14 @@ class AuthService {
     const data = await res.json()
     return data
   }
+  async login(email: string, password: string) {
+    const res = await fetch(`${API_URL}v1/user/login`, {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    })
+    const data = await res.json()
+    return data
+  }
 }
 
 export default new AuthService()
