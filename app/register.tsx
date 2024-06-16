@@ -54,7 +54,10 @@ export default function loginScreen() {
           placeholder={i.content}
           bg={Colors.input_bg}
           color={Colors.text}
+          borderColor={Colors.border}
+          borderRadius={20}
           width="80%"
+          height="8%"
           padding={10}
           margin="3%"
           alignItems="center"
@@ -65,9 +68,11 @@ export default function loginScreen() {
       <View my="1%" />
       <Button
         color={Colors.text}
-        bg={Colors.button}
+        bg={Colors.input_bg}
         margin="3%"
-        width="30%"
+        width="25%"
+        borderColor={Colors.border}
+        borderRadius={20}
         onPress={() => handleRegister()}
       >
         註冊
