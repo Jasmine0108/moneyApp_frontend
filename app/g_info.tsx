@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Button, TouchableOpacity } from 'react-native';
-import SectionedMultiSelect from 'react-native-sectioned-multi-select';
+import MultiSelect from 'react-native-multiple-select';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { getFontSize } from 'tamagui';
+import { Link } from 'expo-router'
+import axios from 'axios'
 
 const App = () => {
   const [payer, setPayer] = useState([]);
@@ -16,19 +17,25 @@ const App = () => {
   const [leftNumber, setLeftNumber] = useState(0);
   const [rightNumber, setRightNumber] = useState(0);
 
-  // 假设有一些函数来更新这些数字
-  const updateLeftNumber = (newNumber) => {
-    setLeftNumber(newNumber);
+  const fetchLeftNumber = async () => {
+    try {
+      const response = await axios.post('http://api.monify.dev:8081/v1/groups_bill');
+      setLeftNumber(response.data.leftNumber); 
+    } catch (error) {
+      console.error('Error fetching left number:', error);
+    }
   };
 
-  const updateRightNumber = (newNumber) => {
-    setRightNumber(newNumber);
-  };
-  
+  useEffect(() => {
+    fetchLeftNumber();
+  }, []);
+
+
 
   const payerItems = [
     { id: 'payer1', name: '付款人1' },
     { id: 'payer2', name: '付款人2' },
+    <Button title="選擇多人"/>
   ];
 
   const participantItems = [
@@ -45,7 +52,7 @@ const App = () => {
   };
 
   const IconRenderer = ({ name, style }) => {
-    return <Feather name="x-circle" size={15} style={[styles.icon, style]} />;
+    //return <Feather name="x-circle" size={15} style={[styles.icon, style]} />;
   };
 
   const onChange = (event, selectedDate) => {
@@ -122,16 +129,13 @@ const App = () => {
               <Feather name="users" size={20} style={styles.icon} />
             </View>
             <View style={styles.multiSelectContainer}>
-              <SectionedMultiSelect
+              <MultiSelect
                 items={payerItems}
                 uniqueKey="id"
                 displayKey="name"
                 selectedItems={payer}
                 onSelectedItemsChange={onPayerChange}
-                single={false}
-                searchPlaceholderText="搜尋"
-                selectText="選擇付款人"
-                IconRenderer={IconRenderer}
+                selectText="付款人"
               />
             </View>
           </View>
@@ -142,16 +146,14 @@ const App = () => {
               <Feather name="users" size={20} style={styles.icon} />
             </View>
             <View style={styles.multiSelectContainer}>
-              <SectionedMultiSelect
+              
+              <MultiSelect
                 items={participantItems}
                 uniqueKey="id"
                 displayKey="name"
                 selectedItems={participants}
                 onSelectedItemsChange={onParticipantsChange}
-                single={false}
-                searchPlaceholderText="搜尋"
-                selectText="選擇分帳者"
-                IconRenderer={IconRenderer}
+                selectText="分帳者"
               />
             </View>
           </View>
@@ -264,12 +266,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 4,
   },
+  
   multiSelectContainer: {
     flex: 1,
+    flexDirection: 'row',
+    
     backgroundColor: 'white',
     borderRadius: 4,
     padding: 5,
-    
+  },
+  rightIcon: {
+    marginRight: 10,
   },
   dateInput: {
     flex: 1,
