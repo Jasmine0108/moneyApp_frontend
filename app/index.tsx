@@ -34,16 +34,19 @@ function LoginScreen() {
   }
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
-      <Text fontSize="36" color={Colors.text} margin="15%">
+      <Text fontSize="36" color={Colors.text} margin="5%">
         Monify
       </Text>
-      {input.map((i) => (
+      {input.map((i, index) => (
         <Input
-          key={i.content}
+          key={index}
           placeholder={i.content}
           bg={Colors.input_bg}
           color={Colors.text}
+          borderColor={Colors.border}
+          borderRadius={20}
           width="80%"
+          height="6%"
           padding={10}
           margin="3%"
           onChangeText={(t) => i.set(t)}
@@ -66,8 +69,11 @@ function LoginScreen() {
       <View my="3%" />
       <Button
         color={Colors.text}
-        bg={Colors.button}
+        bg={Colors.input_bg}
         margin="3%"
+        borderColor={Colors.border}
+        borderRadius={20}
+        width="25%"
         onPress={() => handleLogin()}
       >
         登入

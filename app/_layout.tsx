@@ -28,7 +28,8 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen
             name="index"
-            options={{ headerTitle: 'LoginPage', headerShown: false }}
+            
+            options={{ headerTitle: '', headerShown: false}}
           />
           <Stack.Screen
             name="group"

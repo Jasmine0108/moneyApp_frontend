@@ -8,8 +8,12 @@ const tintColorDark = '#fff';
 
 export const Colors = {
   text: '#000000',
-  button: '#81C78C',
-  bg: '#FFE071',
+  border: '#000000',
+  primary: '#E0DDD6',
+  button_primary:'#F2EEE5',
+  button_secondary:'#544F4B',
+  
+  bg: '#FAFAF4',
   input_bg: '#FFFFFF',
   error: '#FF0000',
   /*
