@@ -18,6 +18,31 @@ class AuthService {
     const data = await res.json()
     return data
   }
+  async createGroup(name: string, accessToken: string){
+    const res = await fetch(`${API_URL}v1/group`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({name}),
+    })
+    const data = await res.json()
+    return data
+  }
+  async listGroup(accessToken: string){
+    const res = await fetch(`${API_URL}v1/group/joined`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await res.json()
+    return data
+  }
+  
+
 }
 
 export default new AuthService()
