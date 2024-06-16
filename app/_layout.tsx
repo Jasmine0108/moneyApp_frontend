@@ -29,7 +29,7 @@ export default function RootLayout() {
           <Stack.Screen
             name="index"
             
-            options={{ headerTitle: '', headerShown: false}}
+            options={{ headerTitle: 'LoginPage', headerShown: false}}
           />
           <Stack.Screen
             name="group"
@@ -42,6 +42,10 @@ export default function RootLayout() {
           <Stack.Screen
             name="register"
             options={{ headerTitle: 'RegisterPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="input_group"
+            options={{ headerTitle: 'InputGroupPage', headerShown: false }}
           />
         </Stack>
       </ThemeProvider>
