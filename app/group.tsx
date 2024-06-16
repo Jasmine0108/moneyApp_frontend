@@ -53,6 +53,11 @@ export default function groupScreen() {
         <ListItem key='add'>
           <View my="3%"></View>
         </ListItem>
+
+        <ListItem>
+          <Link href="/show_room">show_room</Link> 
+        </ListItem>
+          
         <ListItem>
           <Button 
             onPress={handleAddGroup}
@@ -60,7 +65,7 @@ export default function groupScreen() {
             bg={Colors.primary}
             width='90%'
             margin="5%"
-            height={80}
+            height={90}
           >
             <AntDesign name="pluscircleo" size={50} color={Colors.text} opacity={0.5}/>
           </Button>
@@ -72,7 +77,7 @@ export default function groupScreen() {
               bg={Colors.primary}
               margin="5%"
               width="90%"
-              height={80} 
+              height={90} 
             >
               <Text color={Colors.text} scale={1.5} margin="3%">
                 {group_name}

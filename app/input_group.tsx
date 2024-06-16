@@ -17,13 +17,21 @@ export default function inputGroupScreen() {
     else if(groupName != null){
         try{
             var accessToken = await AsyncStorage.getItem('@accessToken')
-            console.log('accessToken: ', accessToken)
+            //console.log('accessToken: ', accessToken)
         }
         catch(e){
             console.log(e)
         }
         const res = await AuthService.createGroup(groupName, accessToken)
         console.log('groupId: ', res.groupId)
+        try{
+            //await AsyncStorage.setItem('@currentGroupName', groupName)
+            await AsyncStorage.setItem('@currentGroupId', res.groupId)
+          } catch (e) {
+            console.log(e)
+        }
+        
+
         if(res.code != 0)
             Alert.alert('Create success.')
         else
