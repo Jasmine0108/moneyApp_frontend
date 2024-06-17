@@ -49,7 +49,11 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="show_room"
-            options={{ headerTitle: 'InputGroupPage', headerShown: false }}
+            options={{ headerTitle: 'ShowRoomPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="group_content"
+            options={{ headerTitle: 'GroupContentPage', headerShown: false }}
           />
         </Stack>
       </ThemeProvider>

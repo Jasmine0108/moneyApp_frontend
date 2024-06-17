@@ -41,6 +41,18 @@ class AuthService {
     const data = await res.json()
     return data
   }
+  async deleteGroup(groupId: string, accessToken: string){
+    const res = await fetch(`${API_URL}v1/group/${groupId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({groupId}),
+    })
+    const data = await res.json()
+    return data
+  }
   
 }
 

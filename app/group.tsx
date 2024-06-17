@@ -12,6 +12,7 @@ import { useIsFocused } from '@react-navigation/native';
 export default function groupScreen() {
   const isFocused = useIsFocused();
   const [groups, setGroups] = useState([]);
+  const [groupIds, setGroupIds] = useState([]);
 
   const router = useRouter()
    
@@ -19,31 +20,47 @@ export default function groupScreen() {
     router.push('/input_group')
   }
 
-  useEffect(() => {
-
-    if(isFocused){
-      const getGroups = async() =>{
-        try{
-          var accessToken = await AsyncStorage.getItem('@accessToken')
-          //console.log('accesstoken: ', accessToken)
-        }
-        catch(e){
-          console.log(e)
-        }
-        const res = await AuthService.listGroup(accessToken)
-        console.log('res', res)
-        console.log('groups: ', res.groups)
-        let tmp = []
-        
-        for(var i = 0; i < res.groups.length; ++i){
-          tmp.push(res.groups[i].name)
-        }
-        setGroups(tmp)
-        console.log('new group: ',tmp)
-      }
-      getGroups()
-      
+  const handleEnterGroup = async(groupId: string) => {
+    
+    try {
+      await AsyncStorage.setItem('@currentGroup', groupId)
+      //console.log('current-set:', groupId)
     }
+    catch(e){
+      console.log(e)
+    }
+    router.push('/group_content')
+  }
+
+  
+
+  useEffect(() => {
+    const getGroups = async() =>{
+      try{
+        var accessToken = await AsyncStorage.getItem('@accessToken')
+        //console.log('accesstoken: ', accessToken)
+      }
+      catch(e){
+        console.log(e)
+      }
+      const res = await AuthService.listGroup(accessToken)
+      //console.log('res', res)
+      console.log('groups: ', res.groups)
+      let tmp_groups = []
+      let tmp_groupIds = []
+      
+      for(var i = 0; i < res.groups.length; ++i){
+        tmp_groups.push(res.groups[i].name)
+        tmp_groupIds.push(res.groups[i].groupId)
+      }
+      setGroups(tmp_groups)
+      setGroupIds(tmp_groupIds)
+      console.log('new group: ',tmp_groups)
+    
+  }
+
+  if(isFocused)
+    getGroups() 
   }, [isFocused]);
   
   return (
@@ -78,6 +95,7 @@ export default function groupScreen() {
               margin="5%"
               width="90%"
               height={90} 
+              onPress={() => handleEnterGroup(groupIds[index])}
             >
               <Text color={Colors.text} scale={1.5} margin="3%">
                 {group_name}
