@@ -47,6 +47,10 @@ export default function RootLayout() {
             name="input_group"
             options={{ headerTitle: 'InputGroupPage', headerShown: false }}
           />
+          <Stack.Screen
+            name="show_room"
+            options={{ headerTitle: 'ShowRoomPage', headerShown: false }}
+          />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
