@@ -13,7 +13,9 @@ export default function inputGroupScreen() {
   const handleConfirmButton = async() => {
     console.log(groupName)
     if(groupName.length > 20)
-        Alert.alert('Group name cannot exceed more then 20 words')
+      Alert.alert('Group name cannot exceed more then 20 words')
+    else if(groupName.length == 0)
+      Alert.alert('Group name cannot be empty')
     else if(groupName != null){
         try{
             var accessToken = await AsyncStorage.getItem('@accessToken')
@@ -31,11 +33,11 @@ export default function inputGroupScreen() {
             console.log(e)
         }
         
-
+/*
         if(res.code != 0)
             Alert.alert('Create success.')
         else
-            Alert.alert('Create failed. Please try again.')
+            Alert.alert('Create failed. Please try again.')*/
     } 
     else
         Alert.alert('Group name undefined.Please try again.')

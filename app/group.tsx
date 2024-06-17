@@ -16,11 +16,9 @@ export default function groupScreen() {
   const [groupIds, setGroupIds] = useState([]);
 
   const router = useRouter()
-   
   const handleAddGroup = () => {
-    router.push('/input_group')
+    router.push('/plus_group')
   }
-
   const handleEnterGroup = async(groupId: string, groupName: string) => {
     try {
       await AsyncStorage.setItem('@currentGroupId', groupId)

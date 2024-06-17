@@ -55,6 +55,10 @@ export default function RootLayout() {
             name="group_content"
             options={{ headerTitle: 'GroupContentPage', headerShown: false }}
           />
+          <Stack.Screen
+            name="plus_group"
+            options={{ headerTitle: 'plusGroupPage', headerShown: false }}
+          />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
