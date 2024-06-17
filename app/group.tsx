@@ -1,5 +1,5 @@
 import React , { useEffect, useState } from 'react'
-import { Text, View, Button, ScrollView, YStack, ListItem } from 'tamagui'
+import { Text, View, Button, ScrollView, YStack, ListItem, CardBackground } from 'tamagui'
 import { Link } from 'expo-router'
 import AuthService from '../services/auth/auth'
 import { Colors } from '../constants/Colors'
@@ -7,6 +7,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage' 
 import { useIsFocused } from '@react-navigation/native';
+import { Alert } from 'react-native'
 
 
 export default function groupScreen() {
@@ -20,11 +21,10 @@ export default function groupScreen() {
     router.push('/input_group')
   }
 
-  const handleEnterGroup = async(groupId: string) => {
-    
+  const handleEnterGroup = async(groupId: string, groupName: string) => {
     try {
-      await AsyncStorage.setItem('@currentGroup', groupId)
-      //console.log('current-set:', groupId)
+      await AsyncStorage.setItem('@currentGroupId', groupId)
+      await AsyncStorage.setItem('@currentGroupName', groupName)
     }
     catch(e){
       console.log(e)
@@ -32,7 +32,54 @@ export default function groupScreen() {
     router.push('/group_content')
   }
 
-  
+  const handleDeleteButton = async() => {
+    try{
+        var accessToken = await AsyncStorage.getItem('@accessToken')
+        var groupId = await AsyncStorage.getItem('@currentGroupId')
+    }
+    catch(e){
+      console.log(e)
+    }
+    const res = await AuthService.deleteGroup(groupId, accessToken)
+    /*if (res.code == null)
+        Alert.alert('Delete success')*/
+    router.push('/group')
+    
+  }
+
+  const handleLongPress = async(groupId: string, groupName: string) => {
+    try {
+      await AsyncStorage.setItem('@currentGroupName', groupName)
+      await AsyncStorage.setItem('@currentGroupId', groupId) 
+    }
+    catch (e) {
+      console.log(e)
+    }
+    Alert.alert(
+      `Delete "${groupName}"`,
+      '',
+      [
+        {
+          text: 'Delete',
+          onPress: () => handleDeleteButton(),
+          style: 'destructive'
+        },
+        {
+          text: 'Cancel',
+          onPress: () => router.push('/group'),
+          style: 'cancel',  
+        }, 
+      ],
+      {
+        cancelable: false,
+        /*
+        onDismiss: () =>
+          Alert.alert(
+            'This alert was dismissed by tapping outside of the alert dialog.',
+          ),*/
+      },
+    )
+  }
 
   useEffect(() => {
     const getGroups = async() =>{
@@ -55,8 +102,7 @@ export default function groupScreen() {
       }
       setGroups(tmp_groups)
       setGroupIds(tmp_groupIds)
-      console.log('new group: ',tmp_groups)
-    
+      console.log('new group: ',tmp_groups) 
   }
 
   if(isFocused)
@@ -95,7 +141,8 @@ export default function groupScreen() {
               margin="5%"
               width="90%"
               height={90} 
-              onPress={() => handleEnterGroup(groupIds[index])}
+              onPress={() => handleEnterGroup(groupIds[index], group_name)}
+              onLongPress={() => handleLongPress(groupIds[index], group_name)}
             >
               <Text color={Colors.text} scale={1.5} margin="3%">
                 {group_name}

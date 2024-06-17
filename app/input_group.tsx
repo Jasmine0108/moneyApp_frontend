@@ -13,7 +13,7 @@ export default function inputGroupScreen() {
   const handleConfirmButton = async() => {
     console.log(groupName)
     if(groupName.length > 20)
-        Alert.alert('Group name cannot exceed 20 words')
+        Alert.alert('Group name cannot exceed more then 20 words')
     else if(groupName != null){
         try{
             var accessToken = await AsyncStorage.getItem('@accessToken')

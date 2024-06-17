@@ -51,10 +51,6 @@ export default function RootLayout() {
             name="show_room"
             options={{ headerTitle: 'ShowRoomPage', headerShown: false }}
           />
-          <Stack.Screen
-            name="group_content"
-            options={{ headerTitle: 'GroupContentPage', headerShown: false }}
-          />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
