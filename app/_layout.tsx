@@ -44,7 +44,7 @@ export default function RootLayout() {
             options={{ headerTitle: 'RegisterPage', headerShown: false }}
           />
           <Stack.Screen
-            name="input_group"
+            name="create_group"
             options={{ headerTitle: 'InputGroupPage', headerShown: false }}
           />
           <Stack.Screen
@@ -57,6 +57,10 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="plus_group"
+            options={{ headerTitle: 'plusGroupPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="join_group"
             options={{ headerTitle: 'plusGroupPage', headerShown: false }}
           />
         </Stack>

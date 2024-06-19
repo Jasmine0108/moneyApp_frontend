@@ -41,10 +41,10 @@ export default function inputGroupScreen() {
     } 
     else
         Alert.alert('Group name undefined.Please try again.')
-    router.push('/group')    
+    router.navigate('/group')    
   }
   const handleCancelButton = () => {
-    router.push('/group')
+    router.navigate('/group')
   }
 
   return (

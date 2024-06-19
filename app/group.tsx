@@ -88,9 +88,10 @@ export default function groupScreen() {
       catch(e){
         console.log(e)
       }
+      console.log(accessToken)
       const res = await AuthService.listGroup(accessToken)
-      //console.log('res', res)
-      console.log('groups: ', res.groups)
+      console.log('res', res)
+      console.log('groups: ', res.groups) //groups
       let tmp_groups = []
       let tmp_groupIds = []
       
@@ -125,7 +126,7 @@ export default function groupScreen() {
             color={Colors.text} 
             bg={Colors.primary}
             width='90%'
-            margin="5%"
+            margin="3%"
             height={90}
           >
             <AntDesign name="pluscircleo" size={50} color={Colors.text} opacity={0.5}/>
@@ -136,7 +137,7 @@ export default function groupScreen() {
             <Button
               key={index}
               bg={Colors.primary}
-              margin="5%"
+              margin="3%"
               width="90%"
               height={90} 
               onPress={() => handleEnterGroup(groupIds[index], group_name)}

@@ -1,37 +1,17 @@
 import React from 'react'
-import { Text, View, Button, Input, ToggleGroup } from 'tamagui'
+import { Text, View, Button } from 'tamagui'
 import { Colors } from '../constants/Colors'
-import AuthService from '../services/auth/auth'
-import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage' 
 
 export default function inputGroupScreen() {
   const router = useRouter()
-  const [addColor, setAddColor] = React.useState(Colors.button_primary)
-  const [createColor, setCreateColor] = React.useState(Colors.button_primary)
-  const [addBorderColor, setAddBorderColor] = React.useState(Colors.input_bg)
-  const [createBorderColor, setCreateBorderColor] = React.useState(Colors.input_bg)
   
   const handleAddGroupButton = () => {
-    setAddColor(Colors.input_bg)
-    setCreateColor(Colors.button_primary)
-    setAddBorderColor(Colors.text)
-    setCreateBorderColor(Colors.input_bg)
-    
+    router.push('/join_group') 
   }
   const handleCreateGroupButton = () => {
-    setCreateColor(Colors.input_bg)
-    setAddColor(Colors.button_primary)
-    setCreateBorderColor(Colors.text)
-    setAddBorderColor(Colors.input_bg)
+    router.push('/create_group')
 
-  }
-  const handleConfirmButton = () => {
-    if(addColor==Colors.input_bg)
-        router.push('/group')
-    if(createColor==Colors.input_bg)
-        router.push('/input_group')
   }
 
   return (
@@ -39,44 +19,35 @@ export default function inputGroupScreen() {
      <View 
         bg={Colors.primary} 
         height="25%" 
-        width="85%" 
+        width="65%" 
         alignItems="center" 
         justifyContent="center" 
         borderRadius={15}
       >
         <Button 
-            bg={addColor} 
+            bg={Colors.bg} 
             width="75%" 
-            borderRadius={20}
-            borderWidth={2}
-            borderColor={addBorderColor}
+            borderRadius={15}
+            borderWidth={4}
+            borderColor={Colors.input_bg}
             onPress={handleAddGroupButton}>
             <Text color={Colors.text} margin="1%">
-                加入群組
+              加入群組
             </Text>
         </Button>
-        <View height="5%"></View>
+        <View height="8%"></View>
         <Button 
-            bg={createColor} 
+            bg={Colors.bg} 
             width="75%" 
-            borderRadius={20}
-            borderWidth={2}
-            borderColor={createBorderColor}
+            borderRadius={15}
+            borderWidth={4}
+            borderColor={Colors.input_bg}
             onPress={handleCreateGroupButton}>
             <Text color={Colors.text} margin="1%">
               創建群組
             </Text>
         </Button>
-        <View height="5%"></View>
-        <Button 
-            bg={Colors.button_primary} 
-            width="30%" 
-            borderRadius={20}
-            onPress={handleConfirmButton}>
-            <Text color={Colors.text} margin="1%">
-              確定
-            </Text>
-        </Button>
+        
       </View>
         
     </View>
