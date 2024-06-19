@@ -1,5 +1,5 @@
 import React , { useEffect, useState } from 'react'
-import { Text, View, Button, ScrollView, YStack, ListItem, CardBackground } from 'tamagui'
+import { Text, View, Button, ScrollView, YStack, ListItem} from 'tamagui'
 import { Link } from 'expo-router'
 import AuthService from '../services/auth/auth'
 import { Colors } from '../constants/Colors'
@@ -16,13 +16,39 @@ export default function groupScreen() {
   const [groupIds, setGroupIds] = useState([]);
 
   const router = useRouter()
+  useEffect(() => {
+    if(isFocused)
+      getGroups() 
+  }, [isFocused]);
+
+  const getGroups = async() =>{
+    try{
+      var accessToken = await AsyncStorage.getItem('@accessToken')
+      console.log('accesstoken: ', accessToken)
+    }
+    catch(e){
+      console.log(e)
+    }
+    const res = await AuthService.listGroup(accessToken)
+    console.log('res', res)
+    let tmp_groups = []
+    let tmp_groupIds = []
+    
+    for(var i = 0; i < res.groups.length; ++i){
+      tmp_groups.push(res.groups[i].name)
+      tmp_groupIds.push(res.groups[i].groupId)
+    }
+    setGroups(tmp_groups)
+    setGroupIds(tmp_groupIds)
+    console.log('new group: ',tmp_groups) 
+}
   const handleAddGroup = () => {
     router.push('/plus_group')
   }
   const handleEnterGroup = async(groupId: string, groupName: string) => {
     try {
       await AsyncStorage.setItem('@currentGroupId', groupId)
-      await AsyncStorage.setItem('@currentGroupName', groupName)
+      //await AsyncStorage.setItem('@currentGroupName', groupName)
     }
     catch(e){
       console.log(e)
@@ -41,13 +67,14 @@ export default function groupScreen() {
     const res = await AuthService.deleteGroup(groupId, accessToken)
     /*if (res.code == null)
         Alert.alert('Delete success')*/
-    router.push('/group')
+    getGroups() 
+    router.navigate('/group')
     
   }
 
   const handleLongPress = async(groupId: string, groupName: string) => {
     try {
-      await AsyncStorage.setItem('@currentGroupName', groupName)
+      //await AsyncStorage.setItem('@currentGroupName', groupName)
       await AsyncStorage.setItem('@currentGroupId', groupId) 
     }
     catch (e) {
@@ -79,34 +106,7 @@ export default function groupScreen() {
     )
   }
 
-  useEffect(() => {
-    const getGroups = async() =>{
-      try{
-        var accessToken = await AsyncStorage.getItem('@accessToken')
-        //console.log('accesstoken: ', accessToken)
-      }
-      catch(e){
-        console.log(e)
-      }
-      console.log(accessToken)
-      const res = await AuthService.listGroup(accessToken)
-      console.log('res', res)
-      console.log('groups: ', res.groups) //groups
-      let tmp_groups = []
-      let tmp_groupIds = []
-      
-      for(var i = 0; i < res.groups.length; ++i){
-        tmp_groups.push(res.groups[i].name)
-        tmp_groupIds.push(res.groups[i].groupId)
-      }
-      setGroups(tmp_groups)
-      setGroupIds(tmp_groupIds)
-      console.log('new group: ',tmp_groups) 
-  }
-
-  if(isFocused)
-    getGroups() 
-  }, [isFocused]);
+ 
   
   return (
 
@@ -115,11 +115,6 @@ export default function groupScreen() {
         <ListItem key='add'>
           <View my="3%"></View>
         </ListItem>
-
-        <ListItem>
-          <Link href="/show_room">show_room</Link> 
-        </ListItem>
-          
         <ListItem>
           <Button 
             onPress={handleAddGroup}

@@ -53,6 +53,42 @@ class AuthService {
     const data = await res.json()
     return data
   }
+  async getGroupInfo(accessToken: string, groupId: string){
+    const res = await fetch(`${API_URL}v1/group?groupId=${groupId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await res.json()
+    return data
+  }
+  async setGroupInviteCode(accessToken: string, groupId: string){
+    const res = await fetch(`${API_URL}v1/group/invite-code`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({groupId}),
+    })
+    const data = await res.json()
+    return data
+  }
+  async getGroupInviteCode(accessToken: string, groupId: string){
+    const res = await fetch(`${API_URL}v1/group/invite-code/g2i?groupId=${groupId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await res.json()
+    return data
+  }
+
+
   
 }
 

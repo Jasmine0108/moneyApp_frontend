@@ -5,27 +5,66 @@ import { Link } from 'expo-router'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 import { FontAwesome5 } from '@expo/vector-icons';
-
+import AuthService from '../services/auth/auth'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useIsFocused } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 
 export default function groupContentScreen(){
-    const [copiedText, setCopiedText] = React.useState('');
+    const [groupName, setGroupName] = React.useState('')
+    const [accessToken, setAccessToken] = React.useState('')
+    const [groupId, setGroupId] = React.useState('')
+    const [inviteCode, setInviteCode] = React.useState('')
+
+    const router = useRouter()
+    const isFocused = useIsFocused();
     const copyToClipboard = async() => {
+        
         try{
-          await Clipboard.setStringAsync('000000');
-          var roomNumber = await Clipboard.getStringAsync();
+          await Clipboard.setStringAsync(inviteCode);
         }
         catch (e) {
           console.log(e)
         }
-        setCopiedText(roomNumber);
       };
-    const router = useRouter()
+     
+      const operateGroupInviteCode = async () => {
+        var res = await AuthService.setGroupInviteCode(accessToken, groupId)
+        console.log('inviteCode: ', res.inviteCode)
+
+        res = await AuthService.getGroupInviteCode(accessToken, groupId)
+        //console.log('res_invite', res)
+        console.log('res.inviteCode:', res.inviteCode)
+        setInviteCode(res.inviteCode)
+
+
+      }
+      React.useEffect(() =>{
+        const getGroupInfo = async() =>{
+            try{
+                var accessToken = await AsyncStorage.getItem('@accessToken')
+                var groupId = await AsyncStorage.getItem('@currentGroupId')
+                setAccessToken(accessToken)
+                setGroupId(groupId)
+            }
+            catch(e){
+              console.log(e)
+            }
+            var res = await AuthService.getGroupInfo(accessToken, groupId)
+            console.log('res_info', res)
+            setGroupName(res.name)
+        }
+        if(isFocused)
+            getGroupInfo()
+    },[isFocused])
+
+   
+    
     return(
         <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>   
         <Dialog modal>
           <Dialog.Trigger asChild>
-            <Button>Show room number</Button>
+            <Button onPress={operateGroupInviteCode}>Show room number</Button>
           </Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Overlay
@@ -59,7 +98,7 @@ export default function groupContentScreen(){
             >
           <YStack alignItems="center" justifyContent="center">
             <Dialog.Title color={Colors.text} fontSize={20}>
-              group name
+              {groupName}
             </Dialog.Title>
             <View height="7%" />
             <XStack height="30%" alignItems="center" >
@@ -70,7 +109,7 @@ export default function groupContentScreen(){
             <View bg={Colors.input_bg} width="35%" height="100%" alignItems="center" justifyContent="center" px="1%">
           
             <Dialog.Description color={Colors.text}>
-              000000
+              {inviteCode}
             </Dialog.Description>
             
             </View>

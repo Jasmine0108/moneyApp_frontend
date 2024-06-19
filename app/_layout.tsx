@@ -48,10 +48,6 @@ export default function RootLayout() {
             options={{ headerTitle: 'InputGroupPage', headerShown: false }}
           />
           <Stack.Screen
-            name="show_room"
-            options={{ headerTitle: 'ShowRoomPage', headerShown: false }}
-          />
-          <Stack.Screen
             name="group_content"
             options={{ headerTitle: 'GroupContentPage', headerShown: false }}
           />
