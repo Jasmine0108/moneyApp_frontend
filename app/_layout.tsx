@@ -44,16 +44,20 @@ export default function RootLayout() {
             options={{ headerTitle: 'RegisterPage', headerShown: false }}
           />
           <Stack.Screen
-            name="input_group"
+            name="create_group"
             options={{ headerTitle: 'InputGroupPage', headerShown: false }}
-          />
-          <Stack.Screen
-            name="show_room"
-            options={{ headerTitle: 'ShowRoomPage', headerShown: false }}
           />
           <Stack.Screen
             name="group_content"
             options={{ headerTitle: 'GroupContentPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="plus_group"
+            options={{ headerTitle: 'plusGroupPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="join_group"
+            options={{ headerTitle: 'plusGroupPage', headerShown: false }}
           />
         </Stack>
       </ThemeProvider>

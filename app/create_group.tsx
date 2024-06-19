@@ -11,9 +11,14 @@ export default function inputGroupScreen() {
   const [groupName, setGroupName] = React.useState('')
   
   const handleConfirmButton = async() => {
-    console.log(groupName)
-    if(groupName.length > 20)
-        Alert.alert('Group name cannot exceed more then 20 words')
+    if(groupName.length > 20){
+      Alert.alert('Group name cannot exceed more then 20 words')
+      router.navigate('/create_group')
+    }
+    else if(groupName.length == 0){
+      Alert.alert('Group name cannot be empty')
+      router.navigate('/create_group')
+    } 
     else if(groupName != null){
         try{
             var accessToken = await AsyncStorage.getItem('@accessToken')
@@ -24,6 +29,7 @@ export default function inputGroupScreen() {
         }
         const res = await AuthService.createGroup(groupName, accessToken)
         console.log('groupId: ', res.groupId)
+
         try{
             //await AsyncStorage.setItem('@currentGroupName', groupName)
             await AsyncStorage.setItem('@currentGroupId', res.groupId)
@@ -31,18 +37,22 @@ export default function inputGroupScreen() {
             console.log(e)
         }
         
-
+/*
         if(res.code != 0)
             Alert.alert('Create success.')
         else
-            Alert.alert('Create failed. Please try again.')
+            Alert.alert('Create failed. Please try again.')*/
+        router.navigate('/group') 
     } 
-    else
-        Alert.alert('Group name undefined.Please try again.')
-    router.push('/group')    
+    else{
+      Alert.alert('Group name undefined.Please try again.')
+      router.navigate('/create_group')
+    }
+       
+       
   }
   const handleCancelButton = () => {
-    router.push('/group')
+    router.navigate('/group')
   }
 
   return (

@@ -1,31 +1,20 @@
-import React from 'react'
-import { Text, View, Button } from 'tamagui'
+import React, { useState } from 'react'
+import { Text, View, Button, Input, XStack, Label } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
-//import AsyncStorage from '@react-native-async-storage/async-storage' 
-import { FontAwesome5 } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage' 
 
 export default function inputGroupScreen() {
   const router = useRouter()
-  /*
-  const getGroupName = async() =>{
-    try{
-      var groupName = await AsyncStorage.getItem('@currentGroupName')
-    } 
-    catch(e){
-      console.log(e)
-      return 'error'
-    }
-    return groupName 
-  } */ 
+  const [opacity, setOpacity] = useState(0)
+
   const handleConfirmButton = async() => {
-    router.push('/group')  
+    router.navigate('/group')  
   }
   const handleCancelButton = async() => {
     
-    router.push('/group')
+    router.navigate('/group')
   }
-  //var groupName = getGroupName()
 
   return (
     <View flex={1} bg={Colors.bg} alignItems="center" justifyContent="center" >
@@ -38,23 +27,20 @@ export default function inputGroupScreen() {
         justifyContent="center" 
         borderRadius={15}
       >
-        <Text color={Colors.text} mt="1%" fontSize={20}>
+        <Text color={Colors.text} mt="1%" fontSize={20} opacity={opacity}>
           groupName
         </Text>
-        <View height="7%" />
-        <View flexDirection="row" mt="3%">
-          <Text color={Colors.text} fontSize={20}>
-            房號
-          </Text>
-          <View width="5%" />
-          <View bg={Colors.input_bg} width="30%" alignItems="center" justifyContent="center" px="1%">
-            <Text color={Colors.text}>
-              000000
-            </Text>
-          </View>
-          <View width="5%" />
-          <FontAwesome5 name="copy" size={24} color="black" />
-        </View>
+        <View height="10%" />
+        <XStack alignItems="center">
+          <Label width="20%">
+            <Text fontSize={20}>房號</Text>
+          </Label>
+          <Input 
+            placeholder='請輸入房號' 
+            width="45%" 
+            alignItems="center"/>
+        </XStack>
+        
         <View height="7%" />
         <View flexDirection="row" mt="5%">  
           <Button 
