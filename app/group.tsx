@@ -64,7 +64,7 @@ export default function groupScreen() {
         },
         {
           text: 'Cancel',
-          onPress: () => router.push('/group'),
+          onPress: () => router.navigate('/group'),
           style: 'cancel',  
         }, 
       ],
