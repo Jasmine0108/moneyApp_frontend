@@ -28,14 +28,12 @@ export default function groupContentScreen(){
         }
       };
      
-      const operateGroupInviteCode = async () => {
-        var res = await AuthService.setGroupInviteCode(accessToken, groupId)
+      const generateGroupInviteCode = async () => {
+        const res = await AuthService.setGroupInviteCode(accessToken, groupId)
+        console.log('res_invite', res)
         console.log('inviteCode: ', res.inviteCode)
-
-        res = await AuthService.getGroupInviteCode(accessToken, groupId)
-        //console.log('res_invite', res)
-        console.log('res.inviteCode:', res.inviteCode)
         setInviteCode(res.inviteCode)
+
 
 
       }
@@ -64,7 +62,7 @@ export default function groupContentScreen(){
         <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>   
         <Dialog modal>
           <Dialog.Trigger asChild>
-            <Button onPress={operateGroupInviteCode}>Show room number</Button>
+            <Button onPress={generateGroupInviteCode}>Show room number</Button>
           </Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Overlay
