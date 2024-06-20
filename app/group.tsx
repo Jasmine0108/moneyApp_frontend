@@ -24,7 +24,6 @@ export default function groupScreen() {
   const getGroups = async() =>{
     try{
       var accessToken = await AsyncStorage.getItem('@accessToken')
-      console.log('accesstoken: ', accessToken)
     }
     catch(e){
       console.log(e)

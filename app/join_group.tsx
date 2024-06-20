@@ -2,13 +2,26 @@ import React, { useState } from 'react'
 import { Text, View, Button, Input, XStack, Label } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
+import AuthService from '../services/auth/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage' 
 
 export default function inputGroupScreen() {
   const router = useRouter()
   const [opacity, setOpacity] = useState(0)
+  const [inviteCode, setInviteCode] = useState('')
 
   const handleConfirmButton = async() => {
+    try {
+      var accessToken = await AsyncStorage.getItem('@accessToken')  
+    }
+    catch (e) {
+      console.log(e)
+    }
+    const res = await AuthService.joinGroup(accessToken, inviteCode)
+  
+    console.log('res_join_group', res)
+    console.log('joined groupId:', res.groupId)
+    console.log('joined group member:', res.memberId)
     router.navigate('/group')  
   }
   const handleCancelButton = async() => {
@@ -38,7 +51,8 @@ export default function inputGroupScreen() {
           <Input 
             placeholder='請輸入房號' 
             width="45%" 
-            alignItems="center"/>
+            alignItems="center"
+            onChangeText={(t) => setInviteCode(t)}/>
         </XStack>
         
         <View height="7%" />

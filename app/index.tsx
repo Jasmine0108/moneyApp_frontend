@@ -30,6 +30,7 @@ function LoginScreen() {
     } catch (e) {
       console.log(e)
     }
+    console.log('accessToken:', res.accessToken)
     router.push('/group')
   }
   return (
