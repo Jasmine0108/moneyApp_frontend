@@ -28,8 +28,7 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen
             name="index"
-            
-            options={{ headerTitle: 'LoginPage', headerShown: false}}
+            options={{ headerTitle: 'LoginPage', headerShown: false }}
           />
           <Stack.Screen
             name="group"
@@ -50,6 +49,10 @@ export default function RootLayout() {
           <Stack.Screen
             name="group_content"
             options={{ headerTitle: 'GroupContentPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="group_balance"
+            options={{ headerTitle: 'GroupBalancePage', headerShown: false }}
           />
           <Stack.Screen
             name="plus_group"
