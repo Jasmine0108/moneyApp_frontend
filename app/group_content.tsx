@@ -1,12 +1,12 @@
-
 import React from 'react'
-import { View, Button, Dialog, XStack, YStack} from 'tamagui'
+import { View, Button, Dialog, XStack, YStack } from 'tamagui'
 import { Link } from 'expo-router'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons'
 import AuthService from '../services/auth/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+
 import { useIsFocused } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 
@@ -53,6 +53,7 @@ export default function groupContentScreen(){
   },[isFocused])
   return(
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>   
+
       <Dialog modal>
         <Dialog.Trigger asChild>
           <Button onPress={generateGroupInviteCode}>Show room number</Button>
@@ -125,5 +126,5 @@ export default function groupContentScreen(){
     <Link href="/check_sum">check_sum</Link>
   </View>
   )
-    
+
 }

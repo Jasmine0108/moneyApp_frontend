@@ -36,6 +36,7 @@ class GroupService {
         return""
       }
       const data = await res.json()
+      //console.log("bill: ", data)
       return data
   }
   async modifyBills(accessToken: string, billId: string, newBillObject){
