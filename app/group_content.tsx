@@ -30,7 +30,7 @@ const ShadowView = styled(View, {
   shadowRadius: 3.84,
   //elevation: 5,
   backgroundColor: 'white',
-  padding: 20,
+  //padding: 20,
   borderRadius: 10,
   margin: 20,
 })
@@ -52,7 +52,7 @@ export default function groupContentScreen() {
   const [rightNumber, setRightNumber] = useState(0)
   const getSubmit = (value1) => {
     console.log('new submit value***', value1)
-    router.push('')
+    router.push('/check_sum')
   }
   const onPayerChange = (selectedPayer) => {
     setPayer(selectedPayer)
@@ -118,14 +118,16 @@ export default function groupContentScreen() {
     if (isFocused) getGroupInfo()
   }, [isFocused])
   return (
-    <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
-      <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+    <View width='100%'  bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
+      {/* <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}> */}
+      <ScrollView width='100%' >
         <View
           style={{
+           // borderWidth:'10px',
             flex: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingVertical: 20,
+           // paddingVertical: 20,
           }}
         >
           {/* 頂部 */}
@@ -264,6 +266,7 @@ export default function groupContentScreen() {
               <Feather name="users" size={20} style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }}>
                 <MultiSelect
+                  hideTags
                   submitButtonText="選擇多人"
                   items={[
                     { id: '1', name: 'Alice' },
@@ -280,13 +283,13 @@ export default function groupContentScreen() {
                   searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
                   customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
                   searchIcon={() => null} // This renders nothing for the search icon
-                  // styleMainWrapper={{
-                  //   backgroundColor: 'white',
-                  //   borderRadius: 5,
+                  styleMainWrapper={{
+                    backgroundColor: 'white',
+                    borderRadius: 5,
 
-                  //   paddingVertical: 10,
-                  //   paddingHorizontal: 12,
-                  // }}
+                   // paddingVertical: 10,
+                    paddingHorizontal: 12,
+                  }}
                 />
               </View>
             </View>
@@ -304,6 +307,7 @@ export default function groupContentScreen() {
               <Feather name="users" size={20} style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }} borderRadius="20px">
                 <MultiSelect
+                  hideTags
                   items={participants}
                   uniqueKey="id"
                   displayKey="name"
@@ -315,13 +319,14 @@ export default function groupContentScreen() {
                   searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
                   customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
                   searchIcon={() => null}
-                  // styleMainWrapper={{
-                  //   backgroundColor: 'white',
-                  //   borderRadius: 5,
+                  
+                  styleMainWrapper={{
+                    backgroundColor: 'white',
+                    borderRadius: 5,
 
-                  //   paddingVertical: 10,
-                  //   paddingHorizontal: 12,
-                  // }}
+                    //paddingVertical: 0,
+                    paddingHorizontal: 12,
+                  }}
                 />
               </View>
             </View>
