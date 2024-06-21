@@ -3,6 +3,7 @@ import { ScrollView, View, Text, Input, Button, styled, XStack, YStack } from 't
 import MultiSelect from 'react-native-multiple-select';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
 
 const App = () => {
   const [payer, setPayer] = useState([]);
@@ -14,6 +15,8 @@ const App = () => {
   const [show, setShow] = useState(false);
   const [leftNumber, setLeftNumber] = useState(0);
   const [rightNumber, setRightNumber] = useState(0);
+
+  
   const ShadowView = styled(View, {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -25,10 +28,15 @@ const App = () => {
     borderRadius: 10,
     margin: 20,
   });
+
+  const getSubmit = (value1) => { 
+    console.log('new submit value***', value1) 
+    router.push('')
+  }
   const onPayerChange = (selectedPayer) => {
     setPayer(selectedPayer);
   };
-
+  
   const onParticipantsChange = (selectedParticipants) => {
     setParticipants(selectedParticipants);
   };
@@ -99,23 +107,30 @@ const App = () => {
             <Feather name="users" size={20} style={{ marginRight: 10 }} />
             <View style={{ flex: 1 }}>
               <MultiSelect
-                items={payer}
+                submitButtonText='選擇多人'
+                items={[
+                  { id: '1', name: 'Alice' },
+                  { id: '2', name: 'Bob' }
+                ]}
                 uniqueKey="id"
                 displayKey="name"
                 selectedItems={payer}
                 onSelectedItemsChange={onPayerChange}
+                onToggleList={()=>(console.log("aaaa"))}
                 selectText="  付款人"
                 styleDropdownMenu={{ backgroundColor: 'white' }}
+                onSubmitclick={(value1) => getSubmit(value1)}
+                
               />
+              
             </View>
           </View>
 
           {/* 分帳者 */}
           <View style={{ flexDirection: 'row', width: '90%', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
             <Feather name="users" size={20} style={{ marginRight: 10 }} />
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1 }} borderRadius="20px">
               <MultiSelect 
-                
                 items={participants}
                 uniqueKey="id"
                 displayKey="name"
@@ -123,6 +138,7 @@ const App = () => {
                 onSelectedItemsChange={onParticipantsChange}
                 selectText="  分帳者"
                 styleDropdownMenu={{ backgroundColor: 'white' }}
+                onSubmitclick={(value1) => getSubmit(value1)}
               />
             </View>
           </View>
@@ -150,21 +166,23 @@ const App = () => {
 
         {/* 底部區域 */}
         <ShadowView style={{  backgroundColor: '#E0DDD6', borderRadius: 10, padding: 20, width: '80%' , }}>
-          <XStack>
-            <Text style={{ fontSize: 18 , alignSelf:'left', color:'black'}}>帳單</Text>
-            
-            <Button style={{ flex: 1, alignItems: 'center', tabSize:10, shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.25,shadowRadius: 3.84, borderRadius:30}}> 
-              結餘</Button>
-            
-            
-            <View style={{marginRight:10}}>
-              <Feather name="list" size={25}  />
-            </View>
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={{ fontSize: 30, color: 'black' }}>帳單</Text>
+          </View>
+          <View>
+            <Button style={{  alignItems: 'center', shadowColor: "#000", 
+                shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.25,shadowRadius: 3.84, borderRadius:30}}> 
+                結餘</Button>
+          </View>
+
             
             
-          </XStack>
+            
+          <View style={{marginRight:10}}>
+            <Feather name="list" size={25}  />
+          </View>
           
+        
           <View style={{ width: '100%', height: 1, backgroundColor: 'black' , marginTop:15}} />
         </ShadowView>
       </View>
