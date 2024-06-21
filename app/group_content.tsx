@@ -6,50 +6,54 @@ import { useRouter } from 'expo-router'
 import { FontAwesome5 } from '@expo/vector-icons'
 import AuthService from '../services/auth/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useIsFocused } from '@react-navigation/native'
-import * as Clipboard from 'expo-clipboard'
 
-export default function groupContentScreen() {
+import { useIsFocused } from '@react-navigation/native';
+import * as Clipboard from 'expo-clipboard';
+
+export default function groupContentScreen(){
   const [groupName, setGroupName] = React.useState('')
   const [accessToken, setAccessToken] = React.useState('')
   const [groupId, setGroupId] = React.useState('')
   const [inviteCode, setInviteCode] = React.useState('')
 
   const router = useRouter()
-  const isFocused = useIsFocused()
-  const copyToClipboard = async () => {
-    try {
-      await Clipboard.setStringAsync(inviteCode)
-    } catch (e) {
+  const isFocused = useIsFocused();
+  const copyToClipboard = async() => {
+    try{
+      await Clipboard.setStringAsync(inviteCode);
+    }
+    catch (e) {
       console.log(e)
     }
-  }
-
+  };
   const generateGroupInviteCode = async () => {
     const res = await AuthService.setGroupInviteCode(accessToken, groupId)
     console.log('res_invite', res)
     console.log('inviteCode: ', res.inviteCode)
     setInviteCode(res.inviteCode)
   }
-  React.useEffect(() => {
-    const getGroupInfo = async () => {
-      try {
-        var accessToken = await AsyncStorage.getItem('@accessToken')
-        var groupId = await AsyncStorage.getItem('@currentGroupId')
-        setAccessToken(accessToken)
-        setGroupId(groupId)
-      } catch (e) {
-        console.log(e)
-      }
-      var res = await AuthService.getGroupInfo(accessToken, groupId)
-      console.log('res_info', res)
-      setGroupName(res.name)
-    }
-    if (isFocused) getGroupInfo()
-  }, [isFocused])
+  React.useEffect(() =>{
+    const getGroupInfo = async() =>{
+        try{
+            var accessToken = await AsyncStorage.getItem('@accessToken')
+            var groupId = await AsyncStorage.getItem('@currentGroupId')
+            setAccessToken(accessToken)
+            setGroupId(groupId)
+        }
+        catch(e){
+          console.log(e)
+        }
+        var res = await AuthService.getGroupInfo(accessToken, groupId)
+        console.log('res_info', res)
+        setGroupName(res.name)
 
-  return (
-    <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
+    }
+    if(isFocused)
+        getGroupInfo()
+  },[isFocused])
+  return(
+    <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>   
+
       <Dialog modal>
         <Dialog.Trigger asChild>
           <Button onPress={generateGroupInviteCode}>Show room number</Button>
@@ -84,51 +88,43 @@ export default function groupContentScreen() {
             opacity={1}
             y={0}
           >
-            <YStack alignItems="center" justifyContent="center">
+          <YStack alignItems="center" justifyContent="center">
+            <Dialog.Title color={Colors.text} fontSize={20}>
+              {groupName}
+            </Dialog.Title>
+            <View height="7%" />
+            <XStack height="30%" alignItems="center" >
               <Dialog.Title color={Colors.text} fontSize={20}>
-                {groupName}
+                房號
               </Dialog.Title>
-              <View height="7%" />
-              <XStack height="30%" alignItems="center">
-                <Dialog.Title color={Colors.text} fontSize={20}>
-                  房號
-                </Dialog.Title>
-                <View width="5%" />
-                <View
-                  bg={Colors.input_bg}
-                  width="35%"
-                  height="100%"
-                  alignItems="center"
-                  justifyContent="center"
-                  px="1%"
-                >
-                  <Dialog.Description color={Colors.text}>
-                    {inviteCode}
-                  </Dialog.Description>
-                </View>
-                <Button bg={Colors.primary} onPress={copyToClipboard}>
-                  <FontAwesome5 name="copy" size={24} color="black" />
-                </Button>
-              </XStack>
-              <View height="10%" />
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  theme="active"
+              <View width="5%" />
+              <View bg={Colors.input_bg} width="35%" height="100%" alignItems="center" justifyContent="center" px="1%">
+                <Dialog.Description color={Colors.text}>
+                  {inviteCode}
+                </Dialog.Description>
+              </View>
+              <Button bg={Colors.primary} onPress={copyToClipboard}>
+                <FontAwesome5 name="copy" size={24} color="black"/>
+              </Button> 
+            </XStack>
+            <View height="10%" />
+            <Dialog.Close displayWhenAdapted asChild>
+              <Button 
+                  theme="active" 
                   aria-label="Close"
-                  bg={Colors.button_primary}
+                  bg={Colors.button_primary} 
                   borderRadius={20}
-                  width="40%"
-                >
+                  width="40%">
                   close
-                </Button>
-              </Dialog.Close>
-            </YStack>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog>
-
-      <Link href="/group">return</Link>
-      <Link href="/group_balance">結餘</Link>
-    </View>
+              </Button> 
+            </Dialog.Close>
+          </YStack>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>  
+    <Link href="/group">return</Link>
+    <Link href="/check_sum">check_sum</Link>
+  </View>
   )
+
 }

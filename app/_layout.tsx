@@ -60,8 +60,14 @@ export default function RootLayout() {
           />
           <Stack.Screen
             name="join_group"
-            options={{ headerTitle: 'plusGroupPage', headerShown: false }}
+            options={{ headerTitle: 'joinGroupPage', headerShown: false }}
           />
+          <Stack.Screen
+            name="check_sum"
+            options={{ headerTitle: 'checkSumPage', headerShown: false }}
+          />
+         
+    
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
