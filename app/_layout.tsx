@@ -66,6 +66,7 @@ export default function RootLayout() {
             name="check_sum"
             options={{ headerTitle: 'checkSumPage', headerShown: false }}
           />
+         
     
         </Stack>
       </ThemeProvider>

@@ -1,95 +1,62 @@
 import React from 'react'
 import { Text, View, Button, Select,Adapt, Sheet, Input, XStack  } from 'tamagui'
 import type { SelectProps } from 'tamagui'
-import { Dimensions } from 'react-native'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 import { useIsFocused } from '@react-navigation/native'
 import { Entypo, Ionicons, AntDesign } from '@expo/vector-icons';
+import GroupService from '../services/group/group'
+import AsyncStorage from '@react-native-async-storage/async-storage' 
+interface members {
+  name: string
+  userId: string
+}
 
-
-
-export function SelectItem(props: SelectProps) {
-  const [val, setVal] = React.useState('')
-  const [maxHeight, setMaxHeight] = React.useState(0)
-
-  const isFocused = useIsFocused();
-  const calculate_height = ()=> {
-    if(items.length*50 > 300)
-      setMaxHeight(300)
-    else setMaxHeight(items.length*50)
-  
-  }
-  React.useEffect(() => {
-    calculate_height()
-  },[isFocused]) 
- 
-
-  return(
-    <Select value={val} onValueChange={setVal} disablePreventBodyScroll {...props}>
-      <Select.Trigger width="40%" >
-        <Select.Value/>
-      </Select.Trigger>
-      <Adapt when="sm" platform="touch">
-        <Sheet 
-          native={!!props.native}
-          modal
-          dismissOnSnapToBottom
-          animationConfig={{
-            type: 'timing',
-            duration: 0, 
-          }}>
-          <Sheet.Frame position="relative" margin="20%" width="40%" maxHeight={maxHeight} >
-            <Sheet.ScrollView>
-              <Adapt.Contents />
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="medium"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}        
-          />
-        </Sheet> 
-      </Adapt>
-      <Select.Content zIndex={200000}>
-        <Select.Viewport>
-          <Select.Group>
-            <Select.Label>Members</Select.Label>
-            {/* for longer lists memoizing these is useful */}
-            {React.useMemo(
-              () =>
-                items.map((item, i) => {
-                  return (
-                    <Select.Item
-                      index={i}
-                      key={item.name}
-                      value={item.name}
-                    >
-                      <Select.ItemText>{item.name}</Select.ItemText>
-                      <Select.ItemIndicator marginLeft="auto">
-                        <AntDesign name="check" size={16} color="black" />
-                      </Select.ItemIndicator>
-                    </Select.Item>
-                  )
-                }),[items])}
-                
-          </Select.Group>
-        </Select.Viewport>
-      </Select.Content>
-    </Select>
-
-  )
+interface data {
+  name: string
+  id: string
+  userId: string
+  amount: number
 }
 
 
-export default function inputGroupScreen() {
+const exampleData: data[] = [
+  { name: 'User1', id:'id1', userId:'userId1', amount: 800 },
+  { name: 'User2', id:'id2', userId:'userId2', amount: 500 },
+  { name: 'User3', id:'id3', userId:'userId3', amount: 200 },
+  { name: 'User4', id:'id4', userId:'userId4', amount: 800 },
+  { name: 'User5', id:'id5', userId:'userId5', amount: 500 },
+]
+const exampleMembers: members[] = [
+  { name: 'User1', userId:'userId1' },
+  { name: 'User2', userId:'userId2' },
+  { name: 'User3', userId:'userId3' },
+  { name: 'User4', userId:'userId4' },
+  { name: 'User5', userId:'userId5' },
+
+]
+
+
+
+export default function checkSumScreen() {
   const router = useRouter()
   const [count, setCount] =  React.useState(0)
   const [selections, setSelections] = React.useState([])
   const [inputs, setInputs] = React.useState([])
+  const [oldSelect, setOldSelect] = React.useState('')
+
+  const getGroupInfo = async() =>{
+    try{
+      var accessToken = await AsyncStorage.getItem('@accessToken')
+      var groupId = await AsyncStorage.getItem('@groupId')
+    }
+    catch(e){
+        console.log(e)
+    }
+    const res = await GroupService.getGroupMember(groupId, accessToken)
+    console.log('member_res', res)
+  }
  
-  
-  
   const handleCancelButton = () => {
     router.navigate('/group_content') 
   }
@@ -101,12 +68,20 @@ export default function inputGroupScreen() {
     setCount(count+1)
     const newSelection = `selection${count}`
     setSelections([...selections, newSelection]) 
-    const newInput = `innput${count}`
-    setInputs([...inputs, newInput]) 
-    const screenHeight = Dimensions.get('window').height;
-    console.log('height', screenHeight)
-    
+    const newInput = `input${count}`
+    setInputs([...inputs, newInput])  
   }
+  const minusButtton =() => {
+
+  }
+  const setAmmount = (rowIndex: number) => {
+
+  }
+  const testFunction = (value: string) => {
+    console.log("test")
+    setOldSelect(value)
+  }
+
   
 
   return (
@@ -121,24 +96,18 @@ export default function inputGroupScreen() {
         justifyContent="center">
         <Text color="white" fontSize="$5">total</Text>
       </View>
-      <View padding='$1' bg='#E0DDD6' height="7%" width="80%" alignItems="center" justifyContent="center">
-        <XStack alignItems="center">
-          <Entypo name="minus" size={24} color="black" />
-          <View width="2%"></View>
-          <SelectItem key='selection0'/>
-          <View width="15%"></View>
-          <Input key='input0' bg={Colors.bg} width="25%" defaultValue='200'/>
-        </XStack>
-      </View>
-
+      
       {selections.map((selection, index)=>(
-        <View key={index} padding='$1' bg={index%2==0? Colors.bg:'#E0DDD6'} height="7%" width="80%" alignItems="center" justifyContent="center">
+        <View key={index} padding={2} bg={index%2==0? '#E0DDD6':Colors.bg} height="6%" width="80%" alignItems="center" justifyContent="center">
           <XStack alignItems="center">
-            <Entypo name="minus" size={24} color="#545454" />
-            <View width="2%"></View>
-            <SelectItem key={selection}/>
+            <Button bg={index%2==0? '#E0DDD6':Colors.bg} icon={<Entypo name="minus" size={16} color="#545454"/>}/>
+            <SelectItem key={selection} id={(index).toString()} onValueChange={testFunction} value={oldSelect}/>
             <View width="15%"></View>
-            <Input key={inputs[index]} bg={index%2==1? Colors.bg:'#E0DDD6'} width="25%" defaultValue='200'/>
+            <Input 
+              key={inputs[index]} 
+              bg={index%2==1? '#DDDDDD':'#FFFFFF'} 
+              width="25%" 
+              onChangeText={(t) => setAmmount(index)}/>
           </XStack>
         </View>
       ))}
@@ -148,9 +117,8 @@ export default function inputGroupScreen() {
         borderRadius={20}
         onPress={handleAddButton}
         margin="5%"
-      >
-        <AntDesign name="plus" size={24} color="white" />   
-      </Button>
+        icon={<AntDesign name="plus" size={24} color="white" /> }
+      />   
       <View height={2} bg="#545454" width="80%"></View>
       <XStack my="5%" alignItems="center" justifyContent="center">
         <Ionicons name="people-sharp" size={40} color="#545454"/>
@@ -184,28 +152,87 @@ export default function inputGroupScreen() {
   )
 }
 
-const items = [
-  { name: 'Apple' },
-  { name: 'Pear' },
-  { name: 'Blackberry' },
-  { name: 'Peach' },
-  { name: 'Apricot' },
-  { name: 'Melon' },
-  { name: 'Honeydew' },
-  { name: 'Starfruit' },
-  { name: 'Blueberry' },
-  { name: 'Raspberry' },
-  { name: 'Strawberry' },
-  { name: 'Mango' },
-  { name: 'Pineapple' },
-  { name: 'Lime' },
-  { name: 'Lemon' },
-  { name: 'Coconut' },
-  { name: 'Guava' },
-  { name: 'Papaya' },
-  { name: 'Orange' },
-  { name: 'Grape' },
-  { name: 'Jackfruit' },
-  { name: 'Durian' },
+export function SelectItem(props: SelectProps) {
+  const [val, setVal] = React.useState('')
+  const [maxHeight, setMaxHeight] = React.useState(0)
+  const [member, setMember] = React.useState<members[]>(exampleMembers)
+  const [data, setData] = React.useState<data[]>([])
+
+  const isFocused = useIsFocused();
+  const calculate_height = ()=> {
+    if(exampleMembers.length*50 > 300)
+      setMaxHeight(300)
+    else setMaxHeight(exampleMembers.length*50)
+  }
+  const setUserSelection = (value:string) => {
+    var prev_val = val
+    props.value=prev_val
+    props.onValueChange(prev_val)
+    setVal(value)
+    props.id
+
+  }
+  
  
-]
+  React.useEffect(() => {
+    calculate_height()
+  },[isFocused]) 
+ 
+
+  return(
+    <Select value={val} onValueChange={setUserSelection}>
+      <Select.Trigger width="40%" iconAfter={<AntDesign name="caretdown" size={15} color='#BCBCBC' />}
+      {...(parseInt(props.id)%2==0?{bg:"#FFFFFF"}:{bg:'#DDDDDD'})}>
+        <Select.Value/>
+      </Select.Trigger>
+      <Adapt when="sm" platform="touch">
+        <Sheet 
+          modal
+          dismissOnSnapToBottom
+          animationConfig={{
+            type: 'timing',
+            duration: 0, 
+          }}>
+          <Sheet.Frame position="relative" margin="20%" width="40%" maxHeight={maxHeight} >
+            <Sheet.ScrollView>
+              <Adapt.Contents />
+            </Sheet.ScrollView>
+          </Sheet.Frame>
+          <Sheet.Overlay
+            animation="medium"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}        
+          />
+        </Sheet> 
+      </Adapt>
+      <Select.Content zIndex={200000}>
+        <Select.Viewport>
+          <Select.Group>
+            <Select.Label>Members</Select.Label>
+            {/* for longer lists memoizing these is useful */}
+            {React.useMemo(
+              () =>
+                exampleMembers.map((member, i) => {
+                  return (
+                    <Select.Item
+                      index={i}
+                      key={member.userId}
+                      value={member.name}
+                      
+                    >
+                      <Select.ItemText>{member.name}</Select.ItemText>
+                      <Select.ItemIndicator marginLeft="auto">
+                        <AntDesign name="check" size={16} color="black" />
+                      </Select.ItemIndicator>
+                    </Select.Item>
+                  )
+                }),[exampleMembers])}
+                
+          </Select.Group>
+        </Select.Viewport>
+      </Select.Content>
+    </Select>
+
+  )
+}
+

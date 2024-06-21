@@ -55,5 +55,16 @@ class GroupService {
       const data = await res.json()
       return data
   }
+  async getGroupMember(accessToken: string, groupId: string){
+    const res = await fetch(`${API_URL}v1/group/members?groupId=${groupId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await res.json()
+      return data
+  }
 }
 export default new GroupService()
