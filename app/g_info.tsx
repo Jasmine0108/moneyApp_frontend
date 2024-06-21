@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, View, Text, Input, Button, styled, XStack, YStack } from 'tamagui';
+import { ScrollView, View, Text, Input, Button, styled, XStack, YStack, EnsureFlexed } from 'tamagui';
 import MultiSelect from 'react-native-multiple-select';
 import { Feather } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -59,7 +59,10 @@ const App = () => {
     return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`;
   };
   const onpressList = ()=>{
-
+    alert("press list!")
+  }
+  const onpressSort = ()=>{
+    alert("press sort")
   }
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
@@ -120,7 +123,16 @@ const App = () => {
                 selectText="  付款人"
                 styleDropdownMenu={{ backgroundColor: 'white' }}
                 onSubmitclick={(value1) => getSubmit(value1)}
-                
+                searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
+                customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
+                searchIcon={() => null} // This renders nothing for the search icon
+                // styleMainWrapper={{
+                //   backgroundColor: 'white',
+                //   borderRadius: 5,
+                  
+                //   paddingVertical: 10,
+                //   paddingHorizontal: 12,
+                // }}
               />
               
             </View>
@@ -131,6 +143,7 @@ const App = () => {
             <Feather name="users" size={20} style={{ marginRight: 10 }} />
             <View style={{ flex: 1 }} borderRadius="20px">
               <MultiSelect 
+               
                 items={participants}
                 uniqueKey="id"
                 displayKey="name"
@@ -139,6 +152,16 @@ const App = () => {
                 selectText="  分帳者"
                 styleDropdownMenu={{ backgroundColor: 'white' }}
                 onSubmitclick={(value1) => getSubmit(value1)}
+                searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
+                customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
+                searchIcon={() => null}
+                // styleMainWrapper={{
+                //   backgroundColor: 'white',
+                //   borderRadius: 5,
+                  
+                //   paddingVertical: 10,
+                //   paddingHorizontal: 12,
+                // }}
               />
             </View>
           </View>
@@ -165,26 +188,37 @@ const App = () => {
         </ShadowView>
 
         {/* 底部區域 */}
-        <ShadowView style={{  backgroundColor: '#E0DDD6', borderRadius: 10, padding: 20, width: '80%' , }}>
-          <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 30, color: 'black' }}>帳單</Text>
-          </View>
-          <View>
-            <Button style={{  alignItems: 'center', shadowColor: "#000", 
-                shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.25,shadowRadius: 3.84, borderRadius:30}}> 
-                結餘</Button>
-          </View>
+        <ShadowView style={{ backgroundColor: '#E0DDD6', borderRadius: 10, padding: 20, width: '80%'}}>
+          {/* Left Section */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+            <XStack style={{ alignItems: 'flex-start' }}>
+              <Text style={{ fontSize: 20, color: 'black' }}>帳單</Text>
+            </XStack>
+            
+            {/* Center Section */}
+            <XStack style={{ alignItems: 'center' }}>
+              <Button style={{ shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, borderRadius: 30 }}>
+                餘額
+              </Button>
+            </XStack>
+            
+            {/* Right Section */}
+            <XStack>
+              <XStack onPress={onpressList}>
+                <Feather name="list" size={25} />
+              </XStack>
+              <XStack onPress={onpressSort}>
+              <Feather name="chevrons-down" size={25}/>
+              </XStack>
+            </XStack>
+            
+            
 
-            
-            
-            
-          <View style={{marginRight:10}}>
-            <Feather name="list" size={25}  />
           </View>
           
-        
-          <View style={{ width: '100%', height: 1, backgroundColor: 'black' , marginTop:15}} />
+          <View style={{ height: 1.5, backgroundColor: 'black', width: '100%', alignSelf: 'center' , marginTop:20}} />
         </ShadowView>
+
       </View>
     </ScrollView>
   );
