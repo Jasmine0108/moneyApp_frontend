@@ -100,7 +100,18 @@ class AuthService {
       const data = await res.json()
       return data
     }
- 
+    async listGroupMember(accessToken: string, groupId: string){
+      const res = await fetch(`${API_URL}v1/group/members?groupId=${groupId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await res.json()
+      console.log('data', data)
+      return data
+    }
 
 
   

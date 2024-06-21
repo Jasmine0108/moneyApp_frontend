@@ -1,25 +1,22 @@
 import React from 'react'
-import {
-  View,
-  Button,
-  Dialog,
-  XStack,
-  YStack,
-  SizableText,
-  Tabs,
-} from 'tamagui'
-import { Link } from 'expo-router'
+import { View, Button, SizableText, Tabs } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
-import { FontAwesome5 } from '@expo/vector-icons'
 import AuthService from '../services/auth/auth'
 import GroupService from '../services/group/group'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
 import { useState } from 'react'
 
+interface members {
+  memberId: string
+  userId: string
+  userName: string
+  avatarUrl: any
+}
+
 interface balances {
-  name: string
+  id: string
   balance: number
 }
 
@@ -28,14 +25,34 @@ interface transfers {
   to: string
   amount: number
 }
+interface prepaidPerson {
+  memberId: string
+  amount: number
+  username: string
+}
+
+interface splitPerson {
+  memberId: string
+  amount: number
+  username: string
+}
+
+interface bills {
+  billId: string
+  groupId: string
+  totalMoney: number
+  title: string
+  description: string
+  prepaidPeople: prepaidPerson[]
+  splitPeople: splitPerson[]
+}
 
 const exampleBalances: balances[] = [
-  { name: 'User1', balance: 800 },
-  { name: 'User2', balance: 500 },
-  { name: 'User3', balance: 200 },
-  { name: 'User4', balance: -800 },
-  { name: 'User5', balance: -500 },
-  { name: 'User6', balance: -200 },
+  { id: 'User2', balance: 500 },
+  { id: 'User1', balance: 800 },
+  { id: 'User5', balance: -500 },
+  { id: 'User4', balance: -800 },
+  { id: 'User3', balance: 200 },
 ]
 const exampleTransfer: transfers[] = [
   { from: 'User1', to: 'User1', amount: 800 },
@@ -43,14 +60,12 @@ const exampleTransfer: transfers[] = [
   { from: 'User3', to: 'User1', amount: 200 },
   { from: 'User4', to: 'User1', amount: 800 },
   { from: 'User5', to: 'User2', amount: 500 },
-  { from: 'User6', to: 'User1', amount: 200 },
 ]
+
 export default function groupContentScreen() {
   const [groupName, setGroupName] = useState('')
+  //const [groupMembers, setGroupMembers] = useState<members[]>([])
   const [myUserName, setMyUserName] = useState('User2')
-  const [accessToken, setAccessToken] = useState('')
-  const [groupId, setGroupId] = useState('')
-  const [bills, setBills] = useState('')
   const [activeTab, setActiveTab] = useState('group')
   const [groupBalances, setGroupBalances] =
     useState<balances[]>(exampleBalances)
@@ -58,47 +73,84 @@ export default function groupContentScreen() {
     useState<transfers[]>(exampleTransfer)
   const router = useRouter()
   const isFocused = useIsFocused()
-  const handleButtonClick = async (action: string) => {
+
+  const handleButtonClick = async () => {
+    //console.log('groupMembers', groupMembers)
     router.navigate('/group_content')
   }
   const handleTabSwitch = (tab: string) => {
     setActiveTab(tab)
   }
+  function convertToBalances(_data, member: members[]) {
+    //console.log('test', member.length)
+    const balancesArray: balances[] = []
+    _data.forEach((value, key) => {
+      balancesArray.push({
+        id: member.find((m) => m.memberId === key).userName,
+        balance: value,
+      })
+    })
+    const sortedBalancesDesc = balancesArray.sort(
+      (a, b) => b.balance - a.balance
+    )
+    console.log('balances', sortedBalancesDesc)
+    setGroupBalances(sortedBalancesDesc)
+  }
+  function convertToTransfers(_data, member) {}
 
-  React.useEffect(() => {
-    const getGroupInfo = async () => {
-      try {
-        var accessToken = await AsyncStorage.getItem('@accessToken')
-        var groupId = await AsyncStorage.getItem('@currentGroupId')
-        setAccessToken(accessToken)
-        setGroupId(groupId)
-      } catch (e) {
-        console.log(e)
+  async function aggregatePrepaidAmounts(_data, member) {
+    const data = _data['groupBills']
+    const prepaidMap = new Map()
+    for (let i = 0; i < data.length; i++) {
+      const bill = data[i]
+      for (let j = 0; j < bill.prepaidPeople.length; j++) {
+        const person = bill.prepaidPeople[j]
+        if (prepaidMap.has(person.memberId)) {
+          prepaidMap.set(
+            person.memberId,
+            prepaidMap.get(person.memberId) + person.amount
+          )
+        } else {
+          prepaidMap.set(person.memberId, person.amount)
+        }
       }
-      var res = await AuthService.getGroupInfo(accessToken, groupId)
-      //console.log('res_info', res)
-      setGroupName(res.name)
+      for (let j = 0; j < bill.splitPeople.length; j++) {
+        const person = bill.splitPeople[j]
+        if (prepaidMap.has(person.memberId)) {
+          prepaidMap.set(
+            person.memberId,
+            prepaidMap.get(person.memberId) - person.amount
+          )
+        } else {
+          prepaidMap.set(person.memberId, -person.amount)
+        }
+      }
     }
+    await convertToBalances(prepaidMap, member)
+    await convertToTransfers(prepaidMap, member)
+  }
+  React.useEffect(() => {
     const getBills = async () => {
       try {
         var accessToken = await AsyncStorage.getItem('@accessToken')
         var groupId = await AsyncStorage.getItem('@currentGroupId')
-        setAccessToken(accessToken)
-        setGroupId(groupId)
+        var group_res = await AuthService.getGroupInfo(accessToken, groupId)
+        setGroupName(group_res)
+        const bill_res: bills[] = await GroupService.getBills(
+          accessToken,
+          groupId
+        )
+        var member_res = await AuthService.listGroupMember(accessToken, groupId)
+
+        await aggregatePrepaidAmounts(bill_res, member_res['members'])
       } catch (e) {
         console.log(e)
       }
-      var res = await GroupService.getBills(accessToken, groupId)
-      //console.log('bill_info', res)
-      setBills(res)
     }
     if (isFocused) {
-      getGroupInfo()
       getBills()
     }
-    console.log('bills:', bills)
   }, [isFocused])
-
   return (
     <View
       bg={Colors.bg}
@@ -153,7 +205,6 @@ export default function groupContentScreen() {
             <SizableText>個人帳務</SizableText>
           </Tabs.Tab>
         </Tabs.List>
-
         <Tabs.Content value="group">
           {groupBalances &&
             Object.keys(groupBalances).map((i, index) => (
@@ -163,6 +214,9 @@ export default function groupContentScreen() {
                 flexDirection="row"
                 justifyContent="space-around"
                 alignItems="center"
+                borderRightWidth="$-0.25"
+                borderLeftWidth="$-0.25"
+                borderColor="#E0DDD6"
                 {...(index % 2 == 0
                   ? { backgroundColor: '#FFFFFF' }
                   : {
@@ -172,6 +226,7 @@ export default function groupContentScreen() {
                   ? {
                       borderBottomLeftRadius: '20px',
                       borderBottomRightRadius: '20px',
+                      borderBottomWidth: '$-0.25',
                     }
                   : {})}
               >
@@ -184,7 +239,7 @@ export default function groupContentScreen() {
                         color: '#10520E',
                       })}
                 >
-                  {groupBalances[index].name}
+                  {groupBalances[index].id}
                 </SizableText>
                 <SizableText
                   fontWeight={400}
@@ -209,6 +264,9 @@ export default function groupContentScreen() {
                 flexDirection="row"
                 justifyContent="space-between"
                 alignItems="center"
+                borderRightWidth="$-0.25"
+                borderLeftWidth="$-0.25"
+                borderColor="#E0DDD6"
                 {...(index % 2 == 0
                   ? { backgroundColor: '#FFFFFF' }
                   : {
@@ -218,6 +276,7 @@ export default function groupContentScreen() {
                   ? {
                       borderBottomLeftRadius: '20px',
                       borderBottomRightRadius: '20px',
+                      borderBottomWidth: '$-0.25',
                     }
                   : {})}
               >
@@ -279,7 +338,7 @@ export default function groupContentScreen() {
         </Tabs.Content>
       </Tabs>
       <View alignItems="center" justifyContent="center" paddingTop="50px">
-        <Button onPress={() => handleButtonClick('confirm')}>確定</Button>
+        <Button onPress={() => handleButtonClick()}>確定</Button>
       </View>
     </View>
   )
