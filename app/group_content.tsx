@@ -3,6 +3,7 @@ import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 import { FontAwesome5 } from '@expo/vector-icons'
 import AuthService from '../services/auth/auth'
+import GroupService from '../services/group/group'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
 import * as Clipboard from 'expo-clipboard'
@@ -22,6 +23,36 @@ import MultiSelect from 'react-native-multiple-select'
 import { Feather } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { router, Link } from 'expo-router'
+// new add
+
+interface prepaidPerson {
+  memberId: string
+  amount: number
+  username: string
+}
+
+interface splitPerson {
+  memberId: string
+  amount: number
+  username: string
+}
+
+interface bills {
+  billId: string
+  groupId: string
+  totalMoney: number
+  title: string
+  description: string
+  prepaidPeople: prepaidPerson[]
+  splitPeople: splitPerson[]
+}
+interface Group {
+  groupId: string
+  name: string
+  description: string
+  avatarUrl: string
+}
+/////////////////////////////////////////////////////////////////////////////////
 
 const ShadowView = styled(View, {
   shadowColor: '#000',
@@ -88,6 +119,12 @@ export default function groupContentScreen() {
 
   const router = useRouter()
   const isFocused = useIsFocused()
+  // new add
+  const [groupBills, setGroupBills] = React.useState<bills[]>([])
+  const [group, setGroup] = React.useState<Group>()
+  const [groupInfoChanged, setChanged] = React.useState(0) //******** */
+  const [member, setMember] = useState([])
+  /////////////////////////////////////////////////////////////////////////////////
   const copyToClipboard = async () => {
     try {
       await Clipboard.setStringAsync(inviteCode)
@@ -111,12 +148,63 @@ export default function groupContentScreen() {
       } catch (e) {
         console.log(e)
       }
-      var res = await AuthService.getGroupInfo(accessToken, groupId)
+      var res = await AuthService.getGroupInfo(accessToken, groupId) //to delete
       console.log('res_info', res)
       setGroupName(res.name)
     }
     if (isFocused) getGroupInfo()
   }, [isFocused])
+  // new add
+  React.useEffect(() => {
+    const getGroupInfo = async () => {
+      try {
+        var _accessToken = await AsyncStorage.getItem('@accessToken')
+        var JSON_group = await AsyncStorage.getItem('@currentGroup')
+        setAccessToken(_accessToken)
+        var _group: Group = JSON.parse(JSON_group)
+        setGroup(_group)
+        const bill_res: bills[] = await GroupService.getBills(
+          _accessToken,
+          _group.groupId
+        )
+        var member_res = await AuthService.listGroupMember(
+          _accessToken,
+          _group.groupId
+        )
+        console.log('_group._accessToken', _accessToken)
+        setGroupBills(bill_res['groupBills'])
+        setMember(member_res['members'])
+        await AsyncStorage.setItem(
+          '@currentGroupBills',
+          JSON.stringify(bill_res['groupBills'])
+        )
+        await AsyncStorage.setItem(
+          '@currentGroupMembers',
+          JSON.stringify(member_res['members'])
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    }
+    if (isFocused || groupInfoChanged) {
+      getGroupInfo()
+    }
+  }, [isFocused, groupInfoChanged])
+  const test = async () => {
+    console.log('accessToken', accessToken)
+    console.log('group', group)
+    console.log('GroupBills', groupBills)
+    console.log('GroupMember', member)
+    console.log(
+      'currentGroupBills',
+      await AsyncStorage.getItem('@currentGroupBills')
+    )
+    console.log(
+      'currentGroupMembers',
+      await AsyncStorage.getItem('@currentGroupMembers')
+    )
+  }
+  /////////////////////////////////////////////////////////////////////////////////
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
       <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
@@ -501,6 +589,7 @@ export default function groupContentScreen() {
       <Link href="/group">return</Link>
       <Link href="/check_sum">check_sum</Link>
       <Link href="/group_balance">balance</Link>
+      <Button onPress={test}>test</Button>
     </View>
   )
 }

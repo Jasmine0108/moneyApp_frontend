@@ -44,7 +44,7 @@ interface bills {
 }
 
 export default function groupContentScreen() {
-  const [groupName, setGroupName] = useState('')
+  const [group, setGroup] = useState('')
   const [groupMembers, setGroupMembers] = useState<members[]>()
   const [myMemberId, setMyMemberId] = useState('person2')
   const [activeTab, setActiveTab] = useState('group')
@@ -245,8 +245,7 @@ export default function groupContentScreen() {
     console.log('trasfer', sorted_transfer)
   }
 
-  async function aggregatePrepaidAmounts(_data) {
-    const data = _data['groupBills']
+  async function aggregatePrepaidAmounts(data) {
     const prepaidMap = new Map()
     for (let i = 0; i < data.length; i++) {
       const bill = data[i]
@@ -287,14 +286,16 @@ export default function groupContentScreen() {
     const getBills = async () => {
       try {
         var accessToken = await AsyncStorage.getItem('@accessToken')
-        var groupId = await AsyncStorage.getItem('@currentGroupId')
-        var group_res = await AuthService.getGroupInfo(accessToken, groupId)
-        setGroupName(group_res)
-        const bill_res: bills[] = await GroupService.getBills(
-          accessToken,
-          groupId
-        )
-        var member_res = await AuthService.listGroupMember(accessToken, groupId)
+        var group_res = await AsyncStorage.getItem('@currentGroup')
+        var _group = JSON.parse(group_res)
+
+        setGroup(_group)
+        var _bill_res = await AsyncStorage.getItem('@currentGroupBills')
+        const bill_res: bills[] = JSON.parse(_bill_res)
+        var _member_res = await AsyncStorage.getItem('@currentGroupMembers')
+        const member_res: members[] = JSON.parse(_member_res)
+        console.log('bill_res', bill_res)
+        console.log('member_res', member_res)
         var test_member: members[] = [
           {
             memberId: 'person1',
