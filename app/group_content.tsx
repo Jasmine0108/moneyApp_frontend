@@ -124,6 +124,7 @@ export default function groupContentScreen(){
     </Dialog>  
     <Link href="/group">return</Link>
     <Link href="/check_sum">check_sum</Link>
+
   </View>
   )
 
