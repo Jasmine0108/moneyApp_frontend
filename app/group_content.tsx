@@ -41,6 +41,7 @@ export default function groupContentScreen() {
   const [accessToken, setAccessToken] = React.useState('')
   const [groupId, setGroupId] = React.useState('')
   const [inviteCode, setInviteCode] = React.useState('')
+  const [member, setMember] = useState([])
   const [payer, setPayer] = useState([])
   const [participants, setParticipants] = useState([])
   const [item, setItem] = useState('')
@@ -339,6 +340,7 @@ export default function groupContentScreen() {
               <MultiSelect
                 hideTags
                 submitButtonText="選擇多人"
+                //item={member}
                 items={[
                   { id: '1', name: 'Alice' },
                   { id: '2', name: 'Bob' },
@@ -347,6 +349,7 @@ export default function groupContentScreen() {
                 displayKey="name"
                 selectedItems={payer}
                 onSelectedItemsChange={onPayerChange}
+                onSelectedItemsChange={this.onSelectedItemsChange}
                 onToggleList={() => console.log('aaaa')}
                 selectText="  付款人"
                 styleDropdownMenu={{ backgroundColor: 'white' }}
@@ -378,7 +381,7 @@ export default function groupContentScreen() {
             <View style={{ flex: 1 , width:'80%'}} borderRadius="20px">
               <MultiSelect
                 hideTags
-                //items={participants}
+                //items={member}
                 items={[
                   { id: '1', name: 'Alice' },
                   { id: '2', name: 'Bob' },
@@ -402,6 +405,7 @@ export default function groupContentScreen() {
                   paddingHorizontal: 12,
                 }} />
             </View>
+            
           </View>
 
           {/* 日期 */}
