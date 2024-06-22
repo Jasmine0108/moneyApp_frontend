@@ -62,6 +62,7 @@ export default function RootLayout() {
             name="join_group"
             options={{ headerTitle: 'joinGroupPage', headerShown: false }}
           />
+          
           <Stack.Screen
             name="check_sum"
             options={{ headerTitle: 'checkSumPage', headerShown: false }}
