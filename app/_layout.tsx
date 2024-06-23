@@ -67,6 +67,10 @@ export default function RootLayout() {
             name="check_sum"
             options={{ headerTitle: 'checkSumPage', headerShown: false }}
           />
+          <Stack.Screen
+            name="set_user_name"
+            options={{ headerTitle: 'setUserNamePage', headerShown: false }}
+          />
          
     
         </Stack>
