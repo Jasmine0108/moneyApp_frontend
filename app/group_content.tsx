@@ -20,7 +20,7 @@ import {
   User,
   Member,
   CurrentGroup,
-} from '../services/intervace'
+} from '../services/interface'
 
 const ShadowView = styled(View, {
   shadowColor: '#000',
@@ -33,10 +33,43 @@ const ShadowView = styled(View, {
   margin: 20,
 })
 
+const exampleHistory = [
+  {
+    type: 'create',
+    operatorName: 'string',
+    title: 'item1',
+    timestamp: '2024-06-23T13:45:28.116Z',
+  },
+  {
+    type: 'delete',
+    operatorName: 'string',
+    title: 'item2',
+    timestamp: '2024-06-24T13:45:28.116Z',
+  },
+  {
+    type: 'create',
+    operatorName: 'string',
+    title: 'item3',
+    timestamp: '2024-06-25T13:45:28.116Z',
+  },
+  {
+    type: 'create',
+    operatorName: 'string',
+    title: 'item4',
+    timestamp: '2024-06-26T13:45:28.116Z',
+  },
+  {
+    type: 'modify',
+    operatorName: 'string',
+    title: 'item5',
+    timestamp: '2024-06-27T13:45:28.116Z',
+  },
+]
+
 export default function groupContentScreen() {
   ////////////////////////////////////////////////////////////////////////////useState
   //insertion
-  const [payer, setPayer] = useState([])
+  const [payer, setPayer] = useState<PrepaidPerson[]>([])
   const [participants, setParticipants] = useState([])
   const [item, setItem] = useState('')
   const [amount, setAmount] = useState('')
@@ -46,7 +79,7 @@ export default function groupContentScreen() {
   const [records, setRecords] = useState([])
   const [isDialogVisible, setIsDialogVisible] = useState(false)
   const [recordToDelete, setRecordToDelete] = useState(null)
-  const [groupInfoChanged, setChanged] = React.useState(0)
+  const [groupInfoChanged, setChanged] = React.useState(false)
   //database
   const [accessToken, setAccessToken] = React.useState('')
   const [inviteCode, setInviteCode] = React.useState('')
@@ -56,6 +89,7 @@ export default function groupContentScreen() {
   const [totalAmount, setTotalAmount] = useState(0)
   const [myBalance, setMyBalance] = useState(0)
   const isFocused = useIsFocused()
+  const router = useRouter()
   ////////////////////////////////////////////////////////////////////////////function
   //component event
   const onDatechange = (event, selectedDate) => {
@@ -78,43 +112,64 @@ export default function groupContentScreen() {
       console.log(e)
     }
   }
-  const handleAddRecord = async (
-    groupId: string,
-    item: string,
-    amount: number,
-    description: string,
-    payer: { id: string; name: string; paidAmount: number }[],
-    participants: { id: string; name: string; shareAmount: number }[]
-  ) => {
+  const handleMultiplePayer = async () => {
+    //#2
+  }
+  const handleMultipleParticipant = async () => {
+    //#3
+  }
+  const handleSummerize = async () => {
+    router.push('/group_balance')
+  }
+  const handleInsertBill = async () => {
     const newRecord = {
-      //billId: generateBillId(), // Function to generate a unique bill ID
-      groupId: groupId,
-      totalMoney: parseFloat(amount.toString()),
+      /*  groupId: group.groupId,
+      totalMoney: amount,
       title: item,
-      description: description,
+      description: 'description',
       prepaidPeople: payer.map((person) => ({
-        memberId: person.id,
-        amount: parseFloat(person.paidAmount.toString()),
-        username: person.name,
+        memberId: person.memberId,
+        amount: person.amount,
       })),
       splitPeople: participants.map((person) => ({
         memberId: person.id,
-        amount: parseFloat(person.shareAmount.toString()),
-        username: person.name,
+        amount: person.amount,
       })),
+    }*/
+      //test
+      groupId: group.groupId,
+      totalMoney: amount,
+      title: item,
+      description: 'description',
+      prepaidPeople: [
+        {
+          memberId: '1cd03777-95fe-40c5-b844-89592a8d7ecb',
+          amount: 350,
+        },
+      ],
+      splitPeople: [
+        {
+          memberId: 'd09db4d6-10b6-45d8-8184-c8c066325300',
+          amount: 350,
+        },
+      ],
     }
 
     try {
       // Assuming GroupService.insertBills is an async function that inserts bills
       await GroupService.insertBills(accessToken, newRecord)
-      console.log('Record added successfully')
+      console.log('member', members)
+      console.log('newRecord', newRecord)
+      setChanged(true)
+      setAmount('')
+      setItem('')
     } catch (error) {
       console.error('Error adding record:', error)
     }
   }
-  const handleDeleteRecord = () => {
-    //wrong
-    Alert.alert(
+  const handleDeleteRecord = async (billID: string) => {
+    //
+    /* Alert.alert(
       '確認刪除',
       '確定要刪除這筆記錄嗎？',
       [
@@ -134,15 +189,23 @@ export default function groupContentScreen() {
         },
       ],
       { cancelable: false }
-    )
+    )*/
+    try {
+      // Assuming GroupService.insertBills is an async function that inserts bills
+      await GroupService.deleteBills(accessToken, billID)
+      console.log('billID', billID)
+      setChanged(true)
+    } catch (error) {
+      console.error('Error deleting record:', error)
+    }
   }
   //function
   const formatDate = (date) => {
     return `${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()}`
   }
-  const findUserNameByMemberId = (memberId: string): string | null => {
-    const _member = members.find((m) => m.memberId === memberId)
-    return _member ? _member.userName : null
+  const findMemberIdByUserId = (UserId: string, _members): string | null => {
+    const _member = _members.find((m) => m.userId === UserId)
+    return _member ? _member.memberId : null
   }
   const generateGroupInviteCode = async () => {
     const res = await AuthService.setGroupInviteCode(accessToken, group.groupId)
@@ -150,9 +213,12 @@ export default function groupContentScreen() {
     //console.log('inviteCode: ', res.inviteCode)
     setInviteCode(res.inviteCode)
   }
-  async function aggregation(data, userId: string) {
+  async function aggregation(data, userId: string, _members) {
     //data is the array of all bills for the current group
-    var _myMemberId = findUserNameByMemberId(userId)
+    var _myMemberId = findMemberIdByUserId(userId, _members)
+    console.log('_members', _members)
+    console.log('userId', userId)
+    console.log('_myMemberId', _myMemberId)
     var total_amount: number = 0
     var my_balance: number = 0
     for (let i = 0; i < data.length; i++) {
@@ -165,9 +231,9 @@ export default function groupContentScreen() {
         }
       }
       for (let j = 0; j < bill.splitPeople.length; j++) {
-        const person: PrepaidPerson = bill.splitPeople[j]
+        const person: SplitPerson = bill.splitPeople[j]
         if (person.memberId == _myMemberId) {
-          my_balance += person.amount
+          my_balance -= person.amount
         }
       }
     }
@@ -197,8 +263,8 @@ export default function groupContentScreen() {
       try {
         const _accessToken = await AsyncStorage.getItem('@accessToken')
         const JSON_group = await AsyncStorage.getItem('@currentGroup')
-        const userId = await AsyncStorage.getItem('@userid')
-
+        const userId = await AsyncStorage.getItem('@userId')
+        console.log('@userid', userId)
         setAccessToken(_accessToken)
         const _group = JSON.parse(JSON_group)
         setGroup(_group)
@@ -221,9 +287,11 @@ export default function groupContentScreen() {
           '@currentGroupMembers',
           JSON.stringify(member_res.members)
         )
+        console.log('bill_res', bill_res)
         const { total_amount, my_balance } = await aggregation(
           bill_res.groupBills,
-          userId
+          userId,
+          member_res.members
         )
         setTotalAmount(total_amount)
         setMyBalance(my_balance)
@@ -233,6 +301,7 @@ export default function groupContentScreen() {
     }
     if (isFocused || groupInfoChanged) {
       getGroupInfo()
+      setChanged(false)
     }
   }, [isFocused, groupInfoChanged])
 
@@ -245,7 +314,7 @@ export default function groupContentScreen() {
           flex={1}
           justifyContent="center"
           alignItems="center"
-          paddingVertical="120px"
+          paddingVertical="20px"
         >
           {/* header */}
           <ShadowView
@@ -396,6 +465,7 @@ export default function groupContentScreen() {
                     displayKey="name"
                     selectedItems={payer}
                     onSelectedItemsChange={setPayer}
+                    onToggleList={() => console.log('aaaa')}
                     selectText="  付款人"
                     styleDropdownMenu={{ backgroundColor: 'white' }}
                     searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
@@ -408,7 +478,9 @@ export default function groupContentScreen() {
                     }}
                   />
                 </View>
-                <Button width="39%">選擇多人</Button>
+                <Button width="39%" onPress={handleMultiplePayer}>
+                  選擇多人
+                </Button>
               </View>
             </View>
 
@@ -446,7 +518,7 @@ export default function groupContentScreen() {
                   />
                 </View>
 
-                <Button>選擇多人</Button>
+                <Button onPress={handleMultipleParticipant}>選擇多人</Button>
               </View>
             </View>
 
@@ -477,16 +549,7 @@ export default function groupContentScreen() {
             <View style={{ marginTop: 20 }}>
               <Button
                 width={100}
-                onPress={() =>
-                  handleAddRecord(
-                    group.groupId,
-                    item,
-                    parseFloat(amount),
-                    'Your description here',
-                    payer,
-                    participants
-                  )
-                }
+                onPress={() => handleInsertBill()}
                 style={{
                   color: 'F2EEE5',
                   borderRadius: 40,
@@ -525,7 +588,7 @@ export default function groupContentScreen() {
               {/* Center Section */}
               <XStack style={{ alignItems: 'center' }}>
                 <Button
-                  onPress={() => console.log('member:', members)}
+                  onPress={handleSummerize}
                   width={100}
                   style={{
                     color: 'F2EEE5',
@@ -584,7 +647,7 @@ export default function groupContentScreen() {
                   </View>
                   <Button
                     size={30}
-                    onPress={handleDeleteRecord}
+                    onPress={() => handleDeleteRecord(bill.billId)}
                     style={{ marginLeft: 10, fontSize: 10 }}
                   >
                     刪除
@@ -594,88 +657,92 @@ export default function groupContentScreen() {
             </View>
           </ShadowView>
         </View>
-      </ScrollView>
+        {/*Button*/}
+        <View flexDirection="row" width="100%" justifyContent="center">
+          <Button>
+            <Link href="/group">return</Link>
+          </Button>
+        </View>
 
-      <Dialog modal>
-        <Dialog.Trigger asChild>
-          <Button onPress={generateGroupInviteCode}>Show room number</Button>
-        </Dialog.Trigger>
-        <Dialog.Portal>
-          <Dialog.Overlay
-            key="overlay"
-            animation="quick"
-            opacity={0.5}
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-          <Dialog.Content
-            bg={Colors.primary}
-            height="23%"
-            width="80%"
-            bordered
-            elevate
-            key="content"
-            animation={[
-              'quick',
-              {
-                opacity: {
-                  overshootClamping: true,
+        <Button onPress={test}>test</Button>
+        <Link href="/check_sum">goto checksum, for test</Link>
+        <Dialog modal>
+          <Dialog.Trigger asChild>
+            <Button onPress={generateGroupInviteCode}>Show room number</Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay
+              key="overlay"
+              animation="quick"
+              opacity={0.5}
+              enterStyle={{ opacity: 0 }}
+              exitStyle={{ opacity: 0 }}
+            />
+            <Dialog.Content
+              bg={Colors.primary}
+              height="23%"
+              width="80%"
+              bordered
+              elevate
+              key="content"
+              animation={[
+                'quick',
+                {
+                  opacity: {
+                    overshootClamping: true,
+                  },
                 },
-              },
-            ]}
-            enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-            exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-            x={0}
-            scale={1}
-            opacity={1}
-            y={0}
-          >
-            <YStack alignItems="center" justifyContent="center">
-              <Dialog.Title color={Colors.text} fontSize={20}>
-                "AAA"
-              </Dialog.Title>
-              <View height="7%" />
-              <XStack height="30%" alignItems="center">
+              ]}
+              enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+              exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+              x={0}
+              scale={1}
+              opacity={1}
+              y={0}
+            >
+              <YStack alignItems="center" justifyContent="center">
                 <Dialog.Title color={Colors.text} fontSize={20}>
-                  房號
+                  "AAA"
                 </Dialog.Title>
-                <View width="5%" />
-                <View
-                  bg={Colors.input_bg}
-                  width="35%"
-                  height="100%"
-                  alignItems="center"
-                  justifyContent="center"
-                  px="1%"
-                >
-                  <Dialog.Description color={Colors.text}>
-                    {inviteCode}
-                  </Dialog.Description>
-                </View>
-                <Button bg={Colors.primary} onPress={copyToClipboard}>
-                  <FontAwesome5 name="copy" size={24} color="black" />
-                </Button>
-              </XStack>
-              <View height="10%" />
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  theme="active"
-                  aria-label="Close"
-                  bg={Colors.button_primary}
-                  borderRadius={20}
-                  width="40%"
-                >
-                  close
-                </Button>
-              </Dialog.Close>
-            </YStack>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog>
-      <Link href="/group">return</Link>
-      <Link href="/check_sum">check_sum</Link>
-      <Link href="/group_balance">balance</Link>
-      <Button onPress={test}>test</Button>
+                <View height="7%" />
+                <XStack height="30%" alignItems="center">
+                  <Dialog.Title color={Colors.text} fontSize={20}>
+                    房號
+                  </Dialog.Title>
+                  <View width="5%" />
+                  <View
+                    bg={Colors.input_bg}
+                    width="35%"
+                    height="100%"
+                    alignItems="center"
+                    justifyContent="center"
+                    px="1%"
+                  >
+                    <Dialog.Description color={Colors.text}>
+                      {inviteCode}
+                    </Dialog.Description>
+                  </View>
+                  <Button bg={Colors.primary} onPress={copyToClipboard}>
+                    <FontAwesome5 name="copy" size={24} color="black" />
+                  </Button>
+                </XStack>
+                <View height="10%" />
+                <Dialog.Close displayWhenAdapted asChild>
+                  <Button
+                    theme="active"
+                    aria-label="Close"
+                    bg={Colors.button_primary}
+                    borderRadius={20}
+                    width="40%"
+                  >
+                    close
+                  </Button>
+                </Dialog.Close>
+              </YStack>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog>
+      </ScrollView>
     </View>
   )
 }
