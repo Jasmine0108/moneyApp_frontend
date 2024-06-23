@@ -53,11 +53,12 @@ interface Group {
   description: string
   avatarUrl: string
 }
+
 interface User{
   id: string
   name: string
 }
-/////////////////////////////////////////////////////////////////////////////////
+
 
 const ShadowView = styled(View, {
   shadowColor: '#000',
@@ -136,7 +137,7 @@ export default function groupContentScreen() {
   const [group, setGroup] = React.useState<Group>()
   const [groupInfoChanged, setChanged] = React.useState(0) //******** */
   const [member, setMember] = useState([])
-  /////////////////////////////////////////////////////////////////////////////////
+
   const copyToClipboard = async () => {
     try {
       await Clipboard.setStringAsync(inviteCode)
@@ -286,7 +287,7 @@ export default function groupContentScreen() {
   };
 
 
-  /////////////////////////////////////////////////////////////////////////////////
+
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
       <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' , width:'100%'}}>
