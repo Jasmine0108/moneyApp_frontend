@@ -16,13 +16,14 @@ import {
   styled,
   XStack,
   YStack,
-  EnsureFlexed,
   Dialog,
+  Group,
 } from 'tamagui'
 import MultiSelect from 'react-native-multiple-select'
 import { Feather } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { router, Link } from 'expo-router'
+import { Alert } from 'react-native'
 // new add
 
 interface prepaidPerson {
@@ -52,6 +53,10 @@ interface Group {
   description: string
   avatarUrl: string
 }
+interface User{
+  id: string
+  name: string
+}
 /////////////////////////////////////////////////////////////////////////////////
 
 const ShadowView = styled(View, {
@@ -66,6 +71,8 @@ const ShadowView = styled(View, {
   margin: 20,
 })
 
+
+////////////////////////////////////////////////////////////////////
 export default function groupContentScreen() {
   const [groupName, setGroupName] = React.useState('')
   const [accessToken, setAccessToken] = React.useState('')
@@ -81,6 +88,11 @@ export default function groupContentScreen() {
   const [show, setShow] = useState(false)
   const [leftNumber, setLeftNumber] = useState(0)
   const [rightNumber, setRightNumber] = useState(0)
+  const [records, setRecords] = useState([])
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState(null);
+  const [user, setUser] = React.useState<User | null>(null);
+
   const getSubmit = (value1) => {
     console.log('new submit value***', value1)
     router.push('')
@@ -138,58 +150,63 @@ export default function groupContentScreen() {
     console.log('inviteCode: ', res.inviteCode)
     setInviteCode(res.inviteCode)
   }
+  async function aggregation(data, _myMemberId: string) {
+    //data is the array of all bills for the current group
+    var total_amount: number = 0
+    var my_balance: number = 0
+    for (let i = 0; i < data.length; i++) {
+      const bill: bills = data[i]
+      total_amount += bill.totalMoney
+      for (let j = 0; j < bill.prepaidPeople.length; j++) {
+        const person: prepaidPerson = bill.prepaidPeople[j]
+        if (person.memberId == _myMemberId) {
+          my_balance += person.amount
+        }
+      }
+      for (let j = 0; j < bill.splitPeople.length; j++) {
+        const person: prepaidPerson = bill.splitPeople[j]
+        if (person.memberId == _myMemberId) {
+          my_balance += person.amount
+        }
+      }
+    }
+   //desired attribute total_amount and my_balance are calculated
+    console.log('total_amount', total_amount)
+    console.log('my_balance', my_balance)
+    return { total_amount, my_balance }; 
+  }
+ // new add
   React.useEffect(() => {
     const getGroupInfo = async () => {
       try {
-        var accessToken = await AsyncStorage.getItem('@accessToken')
-        var groupId = await AsyncStorage.getItem('@currentGroupId')
-        setAccessToken(accessToken)
-        setGroupId(groupId)
+        const _accessToken = await AsyncStorage.getItem('@accessToken');
+        const JSON_group = await AsyncStorage.getItem('@currentGroup');
+        const JSON_user = await AsyncStorage.getItem('@userid');
+        const user = JSON.parse(JSON_user);
+        setUser(user);
+        setAccessToken(_accessToken);
+        const _group = JSON.parse(JSON_group);
+        setGroup(_group);
+        const bill_res = await GroupService.getBills(_accessToken, _group.groupId);
+        const member_res = await GroupService.getGroupMember(_accessToken, _group.groupId);
+        console.log('_group._accessToken', _accessToken);
+        setGroupBills(bill_res.groupBills);
+        setMember(member_res.members); // member_res.members 是包含 id 和 name 属性的数组
+        console.log('member:', member);
+        await AsyncStorage.setItem('@currentGroupBills', JSON.stringify(bill_res.groupBills));
+        await AsyncStorage.setItem('@currentGroupMembers', JSON.stringify(member_res.members));
+        const { total_amount, my_balance } = await aggregation(bill_res.groupBills, user.id.toString());
+        setLeftNumber(total_amount);
+        setRightNumber(my_balance);
       } catch (e) {
-        console.log(e)
+        console.log(e);
       }
-      var res = await AuthService.getGroupInfo(accessToken, groupId) //to delete
-      console.log('res_info', res)
-      setGroupName(res.name)
-    }
-    if (isFocused) getGroupInfo()
-  }, [isFocused])
-  // new add
-  React.useEffect(() => {
-    const getGroupInfo = async () => {
-      try {
-        var _accessToken = await AsyncStorage.getItem('@accessToken')
-        var JSON_group = await AsyncStorage.getItem('@currentGroup')
-        setAccessToken(_accessToken)
-        var _group: Group = JSON.parse(JSON_group)
-        setGroup(_group)
-        const bill_res: bills[] = await GroupService.getBills(
-          _accessToken,
-          _group.groupId
-        )
-        var member_res = await AuthService.listGroupMember(
-          _accessToken,
-          _group.groupId
-        )
-        console.log('_group._accessToken', _accessToken)
-        setGroupBills(bill_res['groupBills'])
-        setMember(member_res['members'])
-        await AsyncStorage.setItem(
-          '@currentGroupBills',
-          JSON.stringify(bill_res['groupBills'])
-        )
-        await AsyncStorage.setItem(
-          '@currentGroupMembers',
-          JSON.stringify(member_res['members'])
-        )
-      } catch (e) {
-        console.log(e)
-      }
-    }
+    };
     if (isFocused || groupInfoChanged) {
-      getGroupInfo()
+      getGroupInfo();
     }
-  }, [isFocused, groupInfoChanged])
+  }, [isFocused, groupInfoChanged]);
+  
   const test = async () => {
     console.log('accessToken', accessToken)
     console.log('group', group)
@@ -204,10 +221,75 @@ export default function groupContentScreen() {
       await AsyncStorage.getItem('@currentGroupMembers')
     )
   }
+  const handleAddRecord = async (
+    groupId: string,
+    item: string,
+    amount: number,
+    description: string,
+    payer: { id: string; name: string; paidAmount: number }[],
+    participants: { id: string; name: string; shareAmount: number }[]
+  ) => {
+    const newRecord: bills = {
+      billId: generateBillId(), // Function to generate a unique bill ID
+      groupId: groupId,
+      totalMoney: parseFloat(amount.toString()),
+      title: item,
+      description: description,
+      prepaidPeople: payer.map(person => ({
+        memberId: person.id,
+        amount: parseFloat(person.paidAmount.toString()),
+        username: person.name
+      })),
+      splitPeople: participants.map(person => ({
+        memberId: person.id,
+        amount: parseFloat(person.shareAmount.toString()),
+        username: person.name
+      }))
+    };
+  
+    try {
+      // Assuming GroupService.insertBills is an async function that inserts bills
+      await GroupService.insertBills(accessToken, newRecord); 
+      console.log('Record added successfully');
+    } catch (error) {
+      console.error('Error adding record:', error);
+    }
+  };
+  
+  const generateBillId = () => {
+    return 'bill' + Date.now();
+  };
+ 
+  
+  const confirmDeleteRecord = () => {
+    Alert.alert(
+      '確認刪除',
+      '確定要刪除這筆記錄嗎？',
+      [
+        {
+          text: '取消',
+          onPress: () => setIsDialogVisible(false),
+          style: 'cancel',
+        },
+        {
+          text: '確定',
+          onPress: () => {
+            const newRecords = [...records];
+            newRecords.splice(recordToDelete, 1);
+            setRecords(newRecords);
+            setIsDialogVisible(false);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
+
   /////////////////////////////////////////////////////////////////////////////////
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
-      <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' }}>
+      <ScrollView style={{ flex: 1, backgroundColor: '#F5F5F5' , width:'100%'}}>
         <View
           style={{
             flex: 1,
@@ -229,7 +311,9 @@ export default function groupContentScreen() {
               marginBottom: 20,
             }}
           >
+            
             <View style={{ flex: 1, alignItems: 'center' }}>
+              
               <Text style={{ fontSize: 30, color: 'black' }}>{leftNumber}</Text>
             </View>
             <Feather
@@ -351,31 +435,26 @@ export default function groupContentScreen() {
             >
               <Feather name="users" size={20} style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }}>
-                <MultiSelect
-                  submitButtonText="選擇多人"
-                  items={[
-                    { id: '1', name: 'Alice' },
-                    { id: '2', name: 'Bob' },
-                  ]}
-                  uniqueKey="id"
-                  displayKey="name"
-                  selectedItems={payer}
-                  onSelectedItemsChange={onPayerChange}
-                  onToggleList={() => console.log('aaaa')}
-                  selectText="  付款人"
-                  styleDropdownMenu={{ backgroundColor: 'white' }}
-                  onSubmitclick={(value1) => getSubmit(value1)}
-                  searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
-                  customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
-                  searchIcon={() => null} // This renders nothing for the search icon
-                  // styleMainWrapper={{
-                  //   backgroundColor: 'white',
-                  //   borderRadius: 5,
-
-                  //   paddingVertical: 10,
-                  //   paddingHorizontal: 12,
-                  // }}
-                />
+              <MultiSelect
+                hideTags
+                submitButtonText="選擇多人"
+                items={member}
+                uniqueKey="id"
+                displayKey="name"
+                selectedItems={payer}
+                onSelectedItemsChange={onPayerChange}
+                onToggleList={() => console.log('aaaa')}
+                selectText="  付款人"
+                styleDropdownMenu={{ backgroundColor: 'white' }}
+                onSubmitclick={(value1) => getSubmit(value1)}
+                searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
+                customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
+                searchIcon={() => null} // This renders nothing for the search icon
+                styleMainWrapper={{
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  paddingHorizontal: 12,
+                }} />
               </View>
             </View>
 
@@ -391,26 +470,25 @@ export default function groupContentScreen() {
             >
               <Feather name="users" size={20} style={{ marginRight: 10 }} />
               <View style={{ flex: 1 }} borderRadius="20px">
-                <MultiSelect
-                  items={participants}
-                  uniqueKey="id"
-                  displayKey="name"
-                  selectedItems={participants}
-                  onSelectedItemsChange={onParticipantsChange}
-                  selectText="  分帳者"
-                  styleDropdownMenu={{ backgroundColor: 'white' }}
-                  onSubmitclick={(value1) => getSubmit(value1)}
-                  searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
-                  customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
-                  searchIcon={() => null}
-                  // styleMainWrapper={{
-                  //   backgroundColor: 'white',
-                  //   borderRadius: 5,
+              <MultiSelect
+                hideTags
+                items={member}
+                uniqueKey="id"
+                displayKey="name"
+                selectedItems={participants}
+                onSelectedItemsChange={onParticipantsChange}
+                selectText="  分帳者"
+                styleDropdownMenu={{ backgroundColor: 'white' }}
+                onSubmitclick={(value1) => getSubmit(value1)}
+                searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
+                customSearchInputStyle={{ height: 0 }} // Ensuring the custom search input style also hides the input
+                searchIcon={() => null}
 
-                  //   paddingVertical: 10,
-                  //   paddingHorizontal: 12,
-                  // }}
-                />
+                styleMainWrapper={{
+                  backgroundColor: 'white',
+                  borderRadius: 5,
+                  paddingHorizontal: 12,
+                }} />
               </View>
             </View>
 
@@ -424,7 +502,7 @@ export default function groupContentScreen() {
               }}
             >
               <Feather name="calendar" size={20} style={{ marginRight: 10 }} />
-              <Button onPress={showDatepicker} style={{ flex: 1 }}>
+              <Button onPress={showDatepicker} style={{ flex: 1, color: 'F2EEE5', }} >
                 <Text>{formatDate(date)}</Text>
                 {show && (
                   <DateTimePicker
@@ -437,7 +515,17 @@ export default function groupContentScreen() {
             </View>
             <View style={{ marginTop: 20 }}>
               <Button
+                width={100}
+                onPress={() => handleAddRecord(
+                  groupId,
+                  item,
+                  parseFloat(amount),
+                  "Your description here",
+                  payer,
+                  participants
+                )}
                 style={{
+                  color: 'F2EEE5',
                   borderRadius: 40,
                   shadowColor: '#000',
                   shadowOffset: { width: 0, height: 2 },
@@ -474,7 +562,10 @@ export default function groupContentScreen() {
               {/* Center Section */}
               <XStack style={{ alignItems: 'center' }}>
                 <Button
+                  onPress={()=>console.log('member:', member)}
+                  width={100}
                   style={{
+                    color: 'F2EEE5',
                     shadowColor: '#000',
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.25,
@@ -482,7 +573,7 @@ export default function groupContentScreen() {
                     borderRadius: 30,
                   }}
                 >
-                  餘額
+                  結餘
                 </Button>
               </XStack>
 
@@ -506,6 +597,33 @@ export default function groupContentScreen() {
                 marginTop: 20,
               }}
             />
+            <View>
+              {groupBills.map((bill, index) => (
+                <View
+                  key={index}
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                    backgroundColor: '#FAFAF4',
+                    padding: 10,
+                    borderRadius: 5,
+                  }}
+                >
+                <Text style={{ flex: 1, fontSize: 15, color: 'black' }}>{bill.title}</Text>
+                <View>
+                  <Text style={{ fontSize: 5 }}>代墊</Text>
+                  <Text style={{ fontSize: 15, color: 'black' }}>{bill.totalMoney}</Text>
+                </View>
+                <Button
+                  size={30}
+                  onPress={confirmDeleteRecord}
+                  style={{ marginLeft: 10, fontSize: 10 }}
+                >
+                  刪除
+                </Button>
+              </View>))}
+            </View>
           </ShadowView>
         </View>
       </ScrollView>
@@ -546,7 +664,7 @@ export default function groupContentScreen() {
           >
             <YStack alignItems="center" justifyContent="center">
               <Dialog.Title color={Colors.text} fontSize={20}>
-                {groupName}
+                {Group.name}
               </Dialog.Title>
               <View height="7%" />
               <XStack height="30%" alignItems="center">
