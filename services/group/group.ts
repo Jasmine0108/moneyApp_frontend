@@ -16,8 +16,8 @@ class GroupService {
     })
     if(res.status!=200){
         console.log("insertBills: error, status: ", res.status)
-        console.log(res.json())
-        console.log("res", res)
+        //console.log(res.json())
+        console.log("res: ", res)
         return""
       }
     const data = await res.json()
@@ -33,7 +33,7 @@ class GroupService {
       })
       if(res.status!=200){
         console.log("getBills: error, status: ", res.status)
-        console.log(res.json())
+        console.log("res: ", res)
         return""
       }
       const data = await res.json()
@@ -50,8 +50,8 @@ class GroupService {
         body: JSON.stringify(newBillObject)
       })
       if(res.status!=200){
-        console.log("putBills: error, status: ", res.status)
-        console.log(res.json())
+        console.log("modifyBills: error, status: ", res.status)
+        console.log("res: ", res)
         return""
       }
       const data = await res.json()
@@ -68,7 +68,7 @@ class GroupService {
     })
     if(res.status!=200){
       console.log("deleteBills: error, status: ", res.status)
-      console.log(res.json())
+      console.log("res: ", res)
       return""
     }
     const data = await res.json()
@@ -82,6 +82,11 @@ class GroupService {
           'Content-Type': 'application/json'
         }
       })
+      if(res.status!=200){
+        console.log("getGroupMember: error, status: ", res.status)
+        console.log("res: ", res)
+        return""
+      }
       const data = await res.json()
       return data
   }
@@ -95,11 +100,10 @@ class GroupService {
       })
       if(res.status!=200){
         console.log("getBillsHistory: error, status: ", res.status)
-        console.log(await res.json())
+        console.log("res: ", res)
         return""
       }
       const data = await res.json()
-      //console.log("bill: ", data)
       return data
   }
 }
