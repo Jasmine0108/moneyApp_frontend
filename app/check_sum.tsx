@@ -1,16 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Text, View, Button, Select,Adapt, Sheet, Input, XStack, Avatar, SelectIcon, SelectGroupFrame  } from 'tamagui'
 import type { SelectProps } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 import { Entypo, Ionicons, AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage' 
+import { useIsFocused } from '@react-navigation/native'
 import { Alert } from 'react-native'
-interface members {
-  name: string
-  userId: string
-  avatar: string
-}
+import { Member } from '../services/interface'
 
 interface data {
   name: string
@@ -20,37 +17,42 @@ interface data {
   avatar: string
 }
 interface prop {
-  member: members[]
+  ableSelectmember: Member[]
+  allMembers: Member[]
   onSelectFinished: (selectRowId: string, selectUserId: string) => void
   onChangedTextFinished: (selectRowId: string, money: string) => void
 }
 
 interface prop extends SelectProps{}
 
-const exampleData: data[] = [
-  { name: 'User1', rowId:'id1', userId:'userId1', amount: '800', avatar:"https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80" },
-  { name: 'User2', rowId:'id2', userId:'userId2', amount: '500', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-  { name: 'User3', rowId:'id3', userId:'userId3', amount: '200', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-  { name: 'User4', rowId:'id4', userId:'userId4', amount: '800', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-  { name: 'User5', rowId:'id5', userId:'userId5', amount: '500', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-]
-const exampleMembers : members[] = [
-  { name: 'User123456', userId:'userId1', avatar:"https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80" },
-  { name: 'User2', userId:'userId2', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-  { name: 'User3', userId:'userId3', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-  { name: 'User4', userId:'userId4', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80"},
-  { name: 'User5', userId:'userId5', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
-]
-
 export default function checkSumScreen() {
   const router = useRouter()
   const [count, setCount] =  useState(0)
-  const [showMember, setShowMember] = useState<members[]>(exampleMembers)
+  const [ableSelectMember, setAbleSelectMember] = useState<Member[]>()
   const [showData, setShowData] = useState<data[]>([])
-  const [total, setTotal] = useState(0) //test
+  const [total, setTotal] = useState('') //test
   const [addSum, setAddSum] = useState(0)
   const [sumOpacity, setSumOpacity] = useState(0)
   const [confirmButtonText, setConfirmButtonText] =  useState("確定")
+  const [memberInfo, setMemberInfo] = useState<Member[]>()
+  const isFocused = useIsFocused()
+
+  useEffect(() => {
+    const getGroupMember = async() =>{
+      var _member_res = await AsyncStorage.getItem('@currentGroupMembers')
+      const member_res: Member[] = JSON.parse(_member_res)
+      setAbleSelectMember(member_res)
+      setMemberInfo(member_res)
+    }
+    if (isFocused) 
+      getGroupMember()
+      getTotalMoney()
+  }, [isFocused])
+  
+  const getTotalMoney = async() => {
+    var _amount = await AsyncStorage.getItem('@snapshotAmount')  
+    setTotal(_amount)
+  }
 
   const handleCancelButton = () => {
     router.navigate('/group_content') 
@@ -104,18 +106,17 @@ export default function checkSumScreen() {
       console.log('confirm:',showData)
       setAddSum(sum)
       setSumOpacity(1)
-      if(sum == total)
+      if(sum == parseInt(total))
         setConfirmButtonText("儲存")
     }
-    
-    //router.push('/group_content')*/
+
   }
   const handleAddButton = () => {
-    if(count < exampleMembers.length){
+    if(count < memberInfo.length){
       setSumOpacity(0)
       setConfirmButtonText("確定")
       let tmpData = showData
-      let tmpRow = { name: '', rowId: count.toString(), userId:"init", amount: "", avatar:'https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80' }
+      let tmpRow = { name: '', rowId: count.toString(), userId:"init", amount: "", avatar:'' }
       tmpData.push(tmpRow)
       setShowData(tmpData)
       setCount(count+1)
@@ -138,7 +139,7 @@ export default function checkSumScreen() {
     setShowData(updatedData)  
   }
 
-  const handleShowMember = (value: string) => {
+  const handleAbleSelectMember = (value: string) => {
     setSumOpacity(0)
     setConfirmButtonText("確定")
     var pre_now_select = value.split(',')
@@ -146,16 +147,16 @@ export default function checkSumScreen() {
     //setOldSelectId(pre_now_select[0])
     let filteredMembers = []
     if(pre_now_select[1] != "init"){
-      filteredMembers = showMember.filter(function(member) {
+      filteredMembers = ableSelectMember.filter(function(member) {
         if(member.userId != pre_now_select[1])
           return member.userId
       })
     }
     if(pre_now_select[0] != "init"){
-      let user = exampleMembers.find(member => member.userId === pre_now_select[0])
+      let user = memberInfo.find(member => member.userId === pre_now_select[0])
       filteredMembers.push(user)
     }
-    setShowMember(filteredMembers)
+    setAbleSelectMember(filteredMembers)
     
   }
   const getAmount =(inputRowId: string, money: string)=> { 
@@ -174,7 +175,7 @@ export default function checkSumScreen() {
   const handleTotal =(text: string) =>{
     setSumOpacity(0)
     setConfirmButtonText("確定")
-    setTotal(parseInt(text))
+    setTotal(text)
   }
 
   return (
@@ -189,14 +190,15 @@ export default function checkSumScreen() {
         fontSize='$6'
         borderRadius={20} 
         textAlign='center'
-        defaultValue='0'
+        defaultValue={total}
         onChangeText={(t) => handleTotal(t)}/>
       {showData.map((data, index)=>(
         <UserAddRow 
           key={data.rowId}
           id={index.toString()}
-          onValueChange={handleShowMember}
-          member={showMember}
+          onValueChange={handleAbleSelectMember}
+          ableSelectmember={ableSelectMember}
+          allMembers={memberInfo}
           onSelectFinished={handleOnSelectFinished}
           onChangedTextFinished={getAmount}/>      
       ))}
@@ -215,7 +217,7 @@ export default function checkSumScreen() {
         <Text 
           fontSize={20} 
           opacity={sumOpacity}
-          color={addSum == total?'#10520E':'#AA2929'}>
+          color={addSum == parseInt(total)?'#10520E':'#AA2929'}>
           {addSum}
         </Text>
       </XStack>
@@ -249,26 +251,28 @@ export default function checkSumScreen() {
 export function UserAddRow(prop : prop) {
    
   const [selectMemberId, setselectMemberId] = useState('init')
-  const [selectMemberAvatar, setselectAvatar] = useState('')
+  const [selectMemberAvatar, setSelectMemberAvatar] = useState('')
   const [maxHeight, setMaxHeight] = useState(0)
   const [avatarOpacity, setAvatarOpacity] = useState(0)
 
   React.useEffect(() => {
     calculate_height()
-  },[prop.member]) 
+  },[prop.ableSelectmember]) 
 
   const calculate_height = ()=> {
-    if(prop.member.length*45 > 300)
+    if(prop.ableSelectmember.length*45 > 300)
       setMaxHeight(300)
-    else setMaxHeight(prop.member.length*45)
+    else setMaxHeight(prop.ableSelectmember.length*45)
   }
-  const setUserSelection = (value: string) => {
+  const setUserSelection = (newSelectMemberId: string) => {
     var prev_id = selectMemberId
     //console.log('prev_id', selectMemberId)
-    setselectMemberId(value)
+    setselectMemberId(newSelectMemberId)
     //console.log('now_id', selectMemberId)
-    prop.onValueChange(prev_id +','+ value)
-    prop.onSelectFinished(prop.id, value)
+    prop.onValueChange(prev_id +','+ newSelectMemberId)
+    prop.onSelectFinished(prop.id, newSelectMemberId)
+    let user = prop.allMembers.find(member => member.userId === newSelectMemberId)
+    setSelectMemberAvatar(`${user.avatarUrl}`)
     setAvatarOpacity(1)
   }
  
@@ -285,21 +289,25 @@ export function UserAddRow(prop : prop) {
             id = {prop.id}
             {...(parseInt(prop.id)%2==0?{bg:"#E0DDD6"}:{bg:Colors.bg})}
             icon={<Entypo name="minus" size={25} color="#545454"/>}
-            px={0}/> 
+            px={0}
+          /> 
             <View width="1%"></View>
             <Select value={selectMemberId} onValueChange={setUserSelection} >
               <Select.Trigger width="45%" px="1%" iconAfter={<AntDesign name="caretdown" size={15} color='#BCBCBC'/>}
               {...(parseInt(prop.id)%2==0?{bg:"#FFFFFF"}:{bg:'#DDDDDD'})}>
   
                 <XStack justifyContent='flex-start'>
-                <Avatar circular size="$1" marginLeft={0}>
-                  <Avatar.Image
-                    src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
-                    opacity={avatarOpacity}
-                />
-                
-                  <Avatar.Fallback backgroundColor="$white" />
-                </Avatar>
+                  { selectMemberAvatar ? (
+                    <Avatar circular size="$1" marginLeft={0}>
+                      <Avatar.Image 
+                      src={selectMemberAvatar}
+                      opacity={avatarOpacity}
+                    />
+                      <Avatar.Fallback bc="white" />
+                    </Avatar>
+                  ) : (
+                    <Text/>
+                  )}
                 <View width="2%"></View>
                 <Select.Value/>
                 </XStack>
@@ -331,7 +339,7 @@ export function UserAddRow(prop : prop) {
                     {/* for longer lists memoizing these is useful */}
                     {React.useMemo(
                       () =>
-                        prop.member.map((user, i) => {
+                        prop.ableSelectmember.map((user, i) => {
                           return (
                             <Select.Item
                               index={i}
@@ -339,14 +347,16 @@ export function UserAddRow(prop : prop) {
                               value={user.userId}  
                             >
                             <XStack justifyContent='flex-start'>
-                              <Avatar circular size="$1">
-                                <Avatar.Image
-                                  src={user.avatar}
-                              />
-                                <Avatar.Fallback backgroundColor="$white" />
-                              </Avatar>
+                              {user.avatarUrl ? (
+                                <Avatar circular size="$1">
+                                  <Avatar.Image src={user.avatarUrl}/>
+                                  <Avatar.Fallback bc="white" />
+                                </Avatar>
+                              ) : (
+                                <Text/>
+                              )}
                               <View width="2%"></View>
-                              <Select.ItemText>{user.name}</Select.ItemText>
+                              <Select.ItemText>{user.userName}</Select.ItemText>
                               <View width="10%"></View>
                               <Select.ItemIndicator marginLeft="auto" >
                                 <AntDesign name="check" size={16} color="black"  />
@@ -354,7 +364,7 @@ export function UserAddRow(prop : prop) {
                               </XStack>
                             </Select.Item>
                           )
-                        }),[prop.member])}
+                        }),[prop.ableSelectmember])}
                         
                   </Select.Group>
                 </Select.Viewport>
