@@ -92,7 +92,7 @@ export default function groupContentScreen() {
   const isFocused = useIsFocused()
   const router = useRouter()
 
-  const [isListVisible, setIsListVisible] = useState(false);
+  const [isListVisible, setIsListVisible] = useState(false)
   ////////////////////////////////////////////////////////////////////////////function
   //component event
   const onDatechange = (event, selectedDate) => {
@@ -103,10 +103,10 @@ export default function groupContentScreen() {
     setShowDatePicker(true)
   }
   const onpressList = () => {
-    alert('press list!, WIP')
-    setIsListVisible(true);
+    //alert('press list!, WIP')
+    setIsListVisible(true)
   }
-  
+
   const onpressSort = () => {
     alert('press sort, WIP')
   }
@@ -117,11 +117,38 @@ export default function groupContentScreen() {
       console.log(e)
     }
   }
+  const snapshotForMultiSelection = async (type: string) => {
+    try {
+      await AsyncStorage.setItem('@snapshotItem', item)
+      await AsyncStorage.setItem('@snapshotAmount', amount)
+      if (type == 'participants') {
+        await AsyncStorage.setItem('@snapshotPayer', JSON.stringify(payer))
+        await AsyncStorage.setItem('@snapshotParticipants', '')
+      } else {
+        await AsyncStorage.setItem('@snapshotPayer', '')
+        await AsyncStorage.setItem(
+          '@snapshotParticipants',
+          JSON.stringify(participants)
+        )
+      }
+      await AsyncStorage.setItem('@fromPage', type)
+    } catch (e) {
+      console.log(e)
+      return false
+    }
+    return true
+  }
   const handleMultiplePayer = async () => {
-    //#2
+    var isSuccess = await snapshotForMultiSelection('payer')
+    if (isSuccess) {
+      router.push('/check_sum')
+    }
   }
   const handleMultipleParticipant = async () => {
-    //#3
+    var isSuccess = await snapshotForMultiSelection('participants')
+    if (isSuccess) {
+      router.push('/check_sum')
+    }
   }
   const handleSummerize = async () => {
     router.push('/group_balance')
@@ -299,6 +326,25 @@ export default function groupContentScreen() {
         )
         setTotalAmount(total_amount)
         setMyBalance(my_balance)
+        var _fromPage = await AsyncStorage.getItem('@fromPage')
+        if (_fromPage == 'payer' || _fromPage == 'participants') {
+          var snapshotItem = await AsyncStorage.getItem('@snapshotItem')
+          var snapshotAmount = await AsyncStorage.getItem('@snapshotAmount')
+          var snapshotPayer = await AsyncStorage.getItem('@snapshotPayer')
+          var snapshotParticipants = await AsyncStorage.getItem(
+            '@snapshotParticipants'
+          )
+          setItem(snapshotItem)
+          setAmount(snapshotAmount)
+          //setPayer(JSON.parse(snapshotPayer))
+          // setParticipants(JSON.parse(snapshotParticipants))
+          console.log('fromPage', _fromPage)
+          console.log('setItem', snapshotItem)
+          console.log('setAmount', snapshotAmount)
+          console.log('setPayer', snapshotPayer)
+          console.log('setParticipants', snapshotParticipants)
+          await AsyncStorage.setItem('@recoveryNeeded', '')
+        }
       } catch (e) {
         console.log(e)
       }
@@ -310,9 +356,7 @@ export default function groupContentScreen() {
   }, [isFocused, groupInfoChanged])
 
   return (
-    
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
-      
       <ScrollView
         style={{ flex: 1, backgroundColor: '#F5F5F5', width: '100%' }}
       >
@@ -414,7 +458,6 @@ export default function groupContentScreen() {
                   textAlign: 'left',
                   paddingVertical: 10,
                   borderRadius: 5,
-                  
                 }}
                 placeholder="品項"
                 placeholderTextColor="black"
@@ -444,8 +487,8 @@ export default function groupContentScreen() {
                   textAlign: 'left',
                   paddingVertical: 10,
                   borderRadius: 5,
-                  borderColor:'white',
-                  color:'black',
+                  borderColor: 'white',
+                  color: 'black',
                 }}
                 placeholder="金額"
                 placeholderTextColor="black"
@@ -559,7 +602,6 @@ export default function groupContentScreen() {
             </View>
             <View style={{ marginTop: 20 }}>
               <Button
-                
                 width={100}
                 onPress={() => handleInsertBill()}
                 style={{
@@ -600,7 +642,7 @@ export default function groupContentScreen() {
               {/* Center Section */}
               <XStack style={{ alignItems: 'center' }}>
                 <Button
-                 // themeInverse
+                  // themeInverse
                   onPress={handleSummerize}
                   width={100}
                   style={{
@@ -671,83 +713,97 @@ export default function groupContentScreen() {
           </ShadowView>
         </View>
         <View style={{ flex: 1 }}>
-        {isListVisible ? (
-          <Dialog modal open={isListVisible} onOpenChange={setIsListVisible}>
-            <Dialog.Portal>
-              <Dialog.Overlay
-                key="overlay"
-                animation="quick"
-                opacity={0.5}
-                enterStyle={{ opacity: 0 }}
-                exitStyle={{ opacity: 0 }}
-              />
-              <Dialog.Content
-                bg={Colors.primary}
-                height="40%"
-                width="80%"
-                bordered
-                elevate
-                key="content"
-                animation={[
-                  'quick',
-                  {
-                    opacity: {
-                      overshootClamping: true,
+          {isListVisible ? (
+            <Dialog modal open={isListVisible} onOpenChange={setIsListVisible}>
+              <Dialog.Portal>
+                <Dialog.Overlay
+                  key="overlay"
+                  animation="quick"
+                  opacity={0.5}
+                  enterStyle={{ opacity: 0 }}
+                  exitStyle={{ opacity: 0 }}
+                />
+                <Dialog.Content
+                  bg={Colors.primary}
+                  height="40%"
+                  width="80%"
+                  bordered
+                  elevate
+                  key="content"
+                  animation={[
+                    'quick',
+                    {
+                      opacity: {
+                        overshootClamping: true,
+                      },
                     },
-                  },
-                ]}
-                enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-                exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-                x={0}
-                scale={1}
-                opacity={1}
-                y={0}
-              >
-                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                  <Text style={{ alignSelf: 'center', fontSize: 15 }}>帳單紀錄</Text>
-                  <YStack>
-                    {exampleHistory.map((item, index) => (
-                      <YStack
-                        key={index}
-                        style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          marginBottom: 10,
-                          padding: 10,
-                          borderRadius: 5,
-                          width: '100%',
-                          // backgroundColor: 'white',
-                        }}
-                      >
-                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
-                          {item.operatorName}在
-                        </Text>
-                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
-                          {new Date(item.timestamp).toLocaleString()}
-                        </Text>
-                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
-                          {item.type}
-                        </Text>
-                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
-                          {item.title}
-                        </Text>
-                      </YStack>
-                    ))}
-                  </YStack>
-                </ScrollView>
-                <Dialog.Close asChild>
-                  <Button
-                    onPress={() => setIsListVisible(false)}
-                    style={{ alignSelf: 'center', padding: 10, marginTop: 10 }}
-                  >
-                    確定
-                  </Button>
-                </Dialog.Close>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog>
-        ) : null}
-      </View>
+                  ]}
+                  enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                  exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                  x={0}
+                  scale={1}
+                  opacity={1}
+                  y={0}
+                >
+                  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                    <Text style={{ alignSelf: 'center', fontSize: 15 }}>
+                      帳單紀錄
+                    </Text>
+                    <YStack>
+                      {exampleHistory.map((item, index) => (
+                        <YStack
+                          key={index}
+                          style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            marginBottom: 10,
+                            padding: 10,
+                            borderRadius: 5,
+                            width: '100%',
+                            // backgroundColor: 'white',
+                          }}
+                        >
+                          <Text
+                            style={{ flex: 1, fontSize: 10, color: 'black' }}
+                          >
+                            {item.operatorName}在
+                          </Text>
+                          <Text
+                            style={{ flex: 1, fontSize: 10, color: 'black' }}
+                          >
+                            {new Date(item.timestamp).toLocaleString()}
+                          </Text>
+                          <Text
+                            style={{ flex: 1, fontSize: 10, color: 'black' }}
+                          >
+                            {item.type}
+                          </Text>
+                          <Text
+                            style={{ flex: 1, fontSize: 10, color: 'black' }}
+                          >
+                            {item.title}
+                          </Text>
+                        </YStack>
+                      ))}
+                    </YStack>
+                  </ScrollView>
+                  <Dialog.Close asChild>
+                    <Button
+                      onPress={() => setIsListVisible(false)}
+                      style={{
+                        alignSelf: 'center',
+                        padding: 10,
+                        marginTop: 10,
+                      }}
+                    >
+                      確定
+                    </Button>
+                  </Dialog.Close>
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog>
+          ) : null}
+        </View>
         {/*Button*/}
         <View flexDirection="row" width="100%" justifyContent="center">
           <Button>
@@ -834,7 +890,6 @@ export default function groupContentScreen() {
           </Dialog.Portal>
         </Dialog>
       </ScrollView>
-     
     </View>
   )
 }
