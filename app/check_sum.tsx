@@ -104,7 +104,8 @@ export default function checkSumScreen() {
       console.log('confirm:',showData)
       setAddSum(sum)
       setSumOpacity(1)
-      setConfirmButtonText("儲存")
+      if(sum == total)
+        setConfirmButtonText("儲存")
     }
     
     //router.push('/group_content')*/
