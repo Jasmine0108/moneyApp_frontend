@@ -10,8 +10,8 @@ import * as Clipboard from 'expo-clipboard'
 import { Feather } from '@expo/vector-icons'
 import AuthService from '../services/auth/auth'
 import GroupService from '../services/group/group'
-import { ScrollView, View, Text, Input } from 'tamagui'
-import { Button, styled, XStack, YStack, Dialog, Group } from 'tamagui'
+import { ScrollView, View, Text, Input, AlertDialogAction } from 'tamagui'
+import { Button, styled, XStack, YStack, Dialog, Group, Overlay } from 'tamagui'
 import MultiSelect from 'react-native-multiple-select'
 import {
   PrepaidPerson,
@@ -21,6 +21,7 @@ import {
   Member,
   CurrentGroup,
 } from '../services/interface'
+import { mergeIfNotShallowEqual } from '@tamagui/core'
 
 const ShadowView = styled(View, {
   shadowColor: '#000',
@@ -90,6 +91,8 @@ export default function groupContentScreen() {
   const [myBalance, setMyBalance] = useState(0)
   const isFocused = useIsFocused()
   const router = useRouter()
+
+  const [isListVisible, setIsListVisible] = useState(false);
   ////////////////////////////////////////////////////////////////////////////function
   //component event
   const onDatechange = (event, selectedDate) => {
@@ -101,7 +104,9 @@ export default function groupContentScreen() {
   }
   const onpressList = () => {
     alert('press list!, WIP')
+    setIsListVisible(true);
   }
+  
   const onpressSort = () => {
     alert('press sort, WIP')
   }
@@ -156,7 +161,6 @@ export default function groupContentScreen() {
     }
 
     try {
-      // Assuming GroupService.insertBills is an async function that inserts bills
       await GroupService.insertBills(accessToken, newRecord)
       console.log('member', members)
       console.log('newRecord', newRecord)
@@ -306,7 +310,9 @@ export default function groupContentScreen() {
   }, [isFocused, groupInfoChanged])
 
   return (
+    
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
+      
       <ScrollView
         style={{ flex: 1, backgroundColor: '#F5F5F5', width: '100%' }}
       >
@@ -401,12 +407,14 @@ export default function groupContentScreen() {
             >
               <Feather name="clipboard" size={20} style={{ marginRight: 10 }} />
               <Input
+                color={'black'}
                 style={{
                   flex: 1,
                   backgroundColor: 'white',
                   textAlign: 'left',
                   paddingVertical: 10,
                   borderRadius: 5,
+                  
                 }}
                 placeholder="品項"
                 placeholderTextColor="black"
@@ -436,6 +444,8 @@ export default function groupContentScreen() {
                   textAlign: 'left',
                   paddingVertical: 10,
                   borderRadius: 5,
+                  borderColor:'white',
+                  color:'black',
                 }}
                 placeholder="金額"
                 placeholderTextColor="black"
@@ -533,6 +543,7 @@ export default function groupContentScreen() {
             >
               <Feather name="calendar" size={20} style={{ marginRight: 10 }} />
               <Button
+                themeInverse
                 onPress={datePickerOnPress}
                 style={{ flex: 1, color: 'F2EEE5' }}
               >
@@ -548,6 +559,7 @@ export default function groupContentScreen() {
             </View>
             <View style={{ marginTop: 20 }}>
               <Button
+                
                 width={100}
                 onPress={() => handleInsertBill()}
                 style={{
@@ -588,6 +600,7 @@ export default function groupContentScreen() {
               {/* Center Section */}
               <XStack style={{ alignItems: 'center' }}>
                 <Button
+                 // themeInverse
                   onPress={handleSummerize}
                   width={100}
                   style={{
@@ -657,6 +670,84 @@ export default function groupContentScreen() {
             </View>
           </ShadowView>
         </View>
+        <View style={{ flex: 1 }}>
+        {isListVisible ? (
+          <Dialog modal open={isListVisible} onOpenChange={setIsListVisible}>
+            <Dialog.Portal>
+              <Dialog.Overlay
+                key="overlay"
+                animation="quick"
+                opacity={0.5}
+                enterStyle={{ opacity: 0 }}
+                exitStyle={{ opacity: 0 }}
+              />
+              <Dialog.Content
+                bg={Colors.primary}
+                height="40%"
+                width="80%"
+                bordered
+                elevate
+                key="content"
+                animation={[
+                  'quick',
+                  {
+                    opacity: {
+                      overshootClamping: true,
+                    },
+                  },
+                ]}
+                enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                x={0}
+                scale={1}
+                opacity={1}
+                y={0}
+              >
+                <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                  <Text style={{ alignSelf: 'center', fontSize: 15 }}>帳單紀錄</Text>
+                  <YStack>
+                    {exampleHistory.map((item, index) => (
+                      <YStack
+                        key={index}
+                        style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          marginBottom: 10,
+                          padding: 10,
+                          borderRadius: 5,
+                          width: '100%',
+                          // backgroundColor: 'white',
+                        }}
+                      >
+                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
+                          {item.operatorName}在
+                        </Text>
+                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
+                          {new Date(item.timestamp).toLocaleString()}
+                        </Text>
+                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
+                          {item.type}
+                        </Text>
+                        <Text style={{ flex: 1, fontSize: 10, color: 'black' }}>
+                          {item.title}
+                        </Text>
+                      </YStack>
+                    ))}
+                  </YStack>
+                </ScrollView>
+                <Dialog.Close asChild>
+                  <Button
+                    onPress={() => setIsListVisible(false)}
+                    style={{ alignSelf: 'center', padding: 10, marginTop: 10 }}
+                  >
+                    確定
+                  </Button>
+                </Dialog.Close>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog>
+        ) : null}
+      </View>
         {/*Button*/}
         <View flexDirection="row" width="100%" justifyContent="center">
           <Button>
@@ -743,6 +834,7 @@ export default function groupContentScreen() {
           </Dialog.Portal>
         </Dialog>
       </ScrollView>
+     
     </View>
   )
 }
