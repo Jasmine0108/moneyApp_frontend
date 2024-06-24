@@ -85,6 +85,7 @@ export default function groupContentScreen() {
   const [accessToken, setAccessToken] = React.useState('')
   const [inviteCode, setInviteCode] = React.useState('')
   const [groupBills, setGroupBills] = React.useState<Bill[]>([])
+  const [billsHistory, setBillsHistory] = React.useState([])
   const [group, setGroup] = React.useState<CurrentGroup>()
   const [members, setMember] = useState<Member[]>([])
   const [totalAmount, setTotalAmount] = useState(0)
@@ -307,9 +308,14 @@ export default function groupContentScreen() {
           _accessToken,
           _group.groupId
         )
+        const history_res = await GroupService.getBillsHistory(
+          _accessToken,
+          _group.groupId
+        )
         console.log('_group._accessToken', _accessToken)
         setGroupBills(bill_res.groupBills)
         setMember(member_res.members) // member_res.members 是包含 id 和 name 属性的数组
+        setBillsHistory(history_res.histories)
         await AsyncStorage.setItem(
           '@currentGroupBills',
           JSON.stringify(bill_res.groupBills)
@@ -318,7 +324,7 @@ export default function groupContentScreen() {
           '@currentGroupMembers',
           JSON.stringify(member_res.members)
         )
-        console.log('bill_res', bill_res)
+        console.log('history_res', history_res)
         const { total_amount, my_balance } = await aggregation(
           bill_res.groupBills,
           userId,
@@ -750,7 +756,7 @@ export default function groupContentScreen() {
                       帳單紀錄
                     </Text>
                     <YStack>
-                      {exampleHistory.map((item, index) => (
+                      {billsHistory.map((item, index) => (
                         <YStack
                           key={index}
                           style={{

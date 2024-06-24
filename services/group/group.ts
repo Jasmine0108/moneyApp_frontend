@@ -85,6 +85,22 @@ class GroupService {
       const data = await res.json()
       return data
   }
-  
+  async getBillsHistory(accessToken: string, groupId: string){
+    const res = await fetch(`${API_URL}v1/group_bill/history?skip=0&limit=10&groupId=${groupId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if(res.status!=200){
+        console.log("getBillsHistory: error, status: ", res.status)
+        console.log(await res.json())
+        return""
+      }
+      const data = await res.json()
+      //console.log("bill: ", data)
+      return data
+  }
 }
 export default new GroupService()
