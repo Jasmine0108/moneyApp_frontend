@@ -4,6 +4,7 @@ import { View, Text, Button, Input } from 'tamagui' // or '@tamagui/core'
 import { useRouter } from 'expo-router'
 import { Colors } from '../constants/Colors'
 import AuthService from '../services/auth/auth'
+import UserService from '../services/user/user'
 import { Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -11,6 +12,7 @@ function LoginScreen() {
   const router = useRouter()
   const [account, setAccount] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [userInfo, setUserInfo] = React.useState<User>()
   const input = [
     { content: '帳號', set: setAccount },
     { content: '密碼', set: setPassword },
@@ -24,15 +26,36 @@ function LoginScreen() {
       return
     }
     try {
-      await AsyncStorage.setItem('@userId', res.userId)
+      //await AsyncStorage.setItem('@userId', res.userId)
       await AsyncStorage.setItem('@accessToken', res.accessToken)
       await AsyncStorage.setItem('@refreshToken', res.refreshToken)
     } catch (e) {
       console.log(e)
     }
     console.log('accessToken:', res.accessToken)
-    router.push('/group')
+    console.log('userId:', res.userId)
+    const res_user_info = await UserService.getUserInfo(res.accessToken, res.userId)
+    console.log('res_user_info', res_user_info)
+    console.log('res_user_info.avatarUrl', res_user_info.avatarUrl)
+    var new_info: User = {id: res.userId, name: res_user_info.name, avatarUrl: res_user_info.avatarUrl}
+    setUserInfo(new_info)
+    try{
+      await AsyncStorage.setItem(
+        '@currentUser',
+        JSON.stringify(new_info)
+      )
+    }
+    catch(e){
+      console.log(e)
+    }
+    
+    if(res_user_info.name == "無名氏")
+      router.navigate('/set_user_name')
+    else
+      router.push('/group')
+      
   }
+  
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
       <Text fontSize="36" color={Colors.text} margin="5%">
