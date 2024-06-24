@@ -349,7 +349,7 @@ export default function groupContentScreen() {
           console.log('setAmount', snapshotAmount)
           console.log('setPayer', snapshotPayer)
           console.log('setParticipants', snapshotParticipants)
-          await AsyncStorage.setItem('@recoveryNeeded', '')
+          await AsyncStorage.setItem('@fromPage', '')
         }
       } catch (e) {
         console.log(e)
