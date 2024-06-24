@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text, View, Button, ScrollView, YStack, ListItem } from 'tamagui'
+import { Text, View, Button, ScrollView, YStack, ListItem, ImageProps } from 'tamagui'
 import { Link } from 'expo-router'
 import AuthService from '../services/auth/auth'
 import { Colors } from '../constants/Colors'
@@ -7,7 +7,7 @@ import { AntDesign } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useIsFocused } from '@react-navigation/native'
-import { Alert } from 'react-native'
+import { Alert, ImageBackground } from 'react-native'
 
 interface Group {
   groupId: string
@@ -82,8 +82,6 @@ export default function groupScreen() {
       //console.log('stringify', groups[index])
       await AsyncStorage.setItem('@currentGroup', JSON.stringify(groups[index]))
       //handleDeleteButton()
-      //await AsyncStorage.setItem('@currentGroupName', groupName)
-      //await AsyncStorage.setItem('@currentGroupId', groupId)
     } catch (e) {
       console.log(e)
     }
@@ -113,9 +111,10 @@ export default function groupScreen() {
     )
   }
 
+
   return (
     <ScrollView flex={1} bg={Colors.bg}>
-      <YStack>
+      <YStack alignItems='center' alignContent='center'>
         <ListItem key="add">
           <View my="3%"></View>
         </ListItem>
@@ -146,17 +145,26 @@ export default function groupScreen() {
               height={90}
               onPress={() => handleEnterGroup(index)}
               onLongPress={() => handleLongPress(index)}
-            >
+            >  
               <Text color={Colors.text} scale={1.5} margin="3%">
                 {_group.name}
               </Text>
+
             </Button>
           </ListItem>
         ))}
 
-        <ListItem>
-          <Link href="/">Logout</Link>
-        </ListItem>
+
+        <Link href="/">Logout</Link>
+
+        <Button
+          bg={Colors.primary}
+          margin="3%"
+          width="30%"
+          onPress={() => router.push('/update_user_name')}
+        >  
+          修改名字
+        </Button>
       </YStack>
     </ScrollView>
   )

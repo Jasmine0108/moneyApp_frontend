@@ -71,6 +71,10 @@ export default function RootLayout() {
             name="set_user_name"
             options={{ headerTitle: 'setUserNamePage', headerShown: false }}
           />
+          <Stack.Screen
+            name="update_user_name"
+            options={{ headerTitle: 'setUserNamePage', headerShown: false }}
+          />
     
         </Stack>
       </ThemeProvider>
