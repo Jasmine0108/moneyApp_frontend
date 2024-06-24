@@ -5,7 +5,7 @@ import UserService from '../services/user/user'
 import { Alert } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage' 
-import { User } from '../services/intervace'
+import { User } from '../services/interface'
 import { useIsFocused } from '@react-navigation/native'
 
 export default function inputGroupScreen() {
