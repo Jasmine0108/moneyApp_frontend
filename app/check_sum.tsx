@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Text, View, Button, Select,Adapt, Sheet, Input, XStack, Avatar  } from 'tamagui'
+import { Text, View, Button, Select,Adapt, Sheet, Input, XStack, Avatar, SelectIcon, SelectGroupFrame  } from 'tamagui'
 import type { SelectProps } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
@@ -35,7 +35,7 @@ const exampleData: data[] = [
   { name: 'User5', rowId:'id5', userId:'userId5', amount: '500', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
 ]
 const exampleMembers : members[] = [
-  { name: 'User1', userId:'userId1', avatar:"https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80" },
+  { name: 'User123456', userId:'userId1', avatar:"https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80" },
   { name: 'User2', userId:'userId2', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
   { name: 'User3', userId:'userId3', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80" },
   { name: 'User4', userId:'userId4', avatar:"https://images.unsplash.com/photo-1548142813-c348350df52b?&w=150&h=150&dpr=2&q=80"},
@@ -248,8 +248,10 @@ export default function checkSumScreen() {
 
 export function UserAddRow(prop : prop) {
    
-  const [selectMemberId, setselectMemberId] = React.useState('init')
-  const [maxHeight, setMaxHeight] = React.useState(0)
+  const [selectMemberId, setselectMemberId] = useState('init')
+  const [selectMemberAvatar, setselectAvatar] = useState('')
+  const [maxHeight, setMaxHeight] = useState(0)
+  const [avatarOpacity, setAvatarOpacity] = useState(0)
 
   React.useEffect(() => {
     calculate_height()
@@ -267,25 +269,41 @@ export function UserAddRow(prop : prop) {
     //console.log('now_id', selectMemberId)
     prop.onValueChange(prev_id +','+ value)
     prop.onSelectFinished(prop.id, value)
+    setAvatarOpacity(1)
   }
  
   return(
     <View 
-      padding={2} 
       {...(parseInt(prop.id)%2==0?{bg:"#E0DDD6"}:{bg:Colors.bg})}
       height="6%" 
       width="80%" 
+      py="3%"
       alignItems="center" 
       justifyContent="center">
-        <XStack alignItems="center">
+        <XStack>
           <Button 
             id = {prop.id}
             {...(parseInt(prop.id)%2==0?{bg:"#E0DDD6"}:{bg:Colors.bg})}
-            icon={<Entypo name="minus" size={16} color="#545454"/>}/> 
+            icon={<Entypo name="minus" size={25} color="#545454"/>}
+            px={0}/> 
+            <View width="1%"></View>
             <Select value={selectMemberId} onValueChange={setUserSelection} >
-              <Select.Trigger width="40%" iconAfter={<AntDesign name="caretdown" size={15} color='#BCBCBC' />}
+              <Select.Trigger width="45%" px="1%" iconAfter={<AntDesign name="caretdown" size={15} color='#BCBCBC'/>}
               {...(parseInt(prop.id)%2==0?{bg:"#FFFFFF"}:{bg:'#DDDDDD'})}>
+  
+                <XStack justifyContent='flex-start'>
+                <Avatar circular size="$1" marginLeft={0}>
+                  <Avatar.Image
+                    src="https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80"
+                    opacity={avatarOpacity}
+                />
+                
+                  <Avatar.Fallback backgroundColor="$white" />
+                </Avatar>
+                <View width="2%"></View>
                 <Select.Value/>
+                </XStack>
+                
               </Select.Trigger>
               <Adapt when="sm" platform="touch">
                 <Sheet 
@@ -295,7 +313,7 @@ export function UserAddRow(prop : prop) {
                     type: 'timing',
                     duration: 0, 
                   }}>
-                  <Sheet.Frame position="relative" margin="25%" width="35%" maxHeight={maxHeight} >
+                  <Sheet.Frame position="relative" margin="25%" width="36%" maxHeight={maxHeight} >
                     <Sheet.ScrollView>
                       <Adapt.Contents />
                     </Sheet.ScrollView>
@@ -320,12 +338,12 @@ export function UserAddRow(prop : prop) {
                               key={user.userId}
                               value={user.userId}  
                             >
-                            <XStack justifyContent='center'>
+                            <XStack justifyContent='flex-start'>
                               <Avatar circular size="$1">
                                 <Avatar.Image
                                   src={user.avatar}
                               />
-                                <Avatar.Fallback backgroundColor="$blue10" />
+                                <Avatar.Fallback backgroundColor="$white" />
                               </Avatar>
                               <View width="2%"></View>
                               <Select.ItemText>{user.name}</Select.ItemText>
@@ -342,7 +360,7 @@ export function UserAddRow(prop : prop) {
                 </Select.Viewport>
               </Select.Content>
             </Select>
-            <View width="15%"></View>
+            <View width="10%"></View>
             <Input 
 
               {...(parseInt(prop.id)%2==0?{bg:"#FFFFFF"}:{bg:'#DDDDDD'})} 
