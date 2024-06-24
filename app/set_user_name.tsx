@@ -1,4 +1,4 @@
-import React ,{useEffect} from 'react'
+import React ,{ useEffect, useState } from 'react'
 import { Text, View, Button, Input, Avatar } from 'tamagui'
 import { Colors } from '../constants/Colors'
 import UserService from '../services/user/user'
@@ -10,12 +10,11 @@ import { useIsFocused } from '@react-navigation/native'
 
 export default function inputGroupScreen() {
   const router = useRouter()
-  const [userName, setUserName] = React.useState('')
-  const [user, setUser] = React.useState<User>()
-  const [avatar, setAvatar] = React.useState('')
+  const [userName, setUserName] = useState('')
+  const [user, setUser] = useState<User>()
+  const [avatar, setAvatar] = useState('')
   const isFocused = useIsFocused()
   
-
   const getUserInfo = async() => {
     try{
       var currentUser_res = await AsyncStorage.getItem('@currentUser')  

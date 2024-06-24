@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Text, View, Button, Select,Adapt, Sheet, Input, XStack, Avatar  } from 'tamagui'
 import type { SelectProps } from 'tamagui'
 import { Colors } from '../constants/Colors'
@@ -44,25 +44,27 @@ const exampleMembers : members[] = [
 
 export default function checkSumScreen() {
   const router = useRouter()
-  const [count, setCount] =  React.useState(0)
-  const [showMember, setShowMember] = React.useState<members[]>(exampleMembers)
-  const [showData, setShowData] = React.useState<data[]>([])
-  const [total, setTotal] = React.useState(0) //test
-  const [addSum, setAddSum] = React.useState(0)
-  const [sumOpacity, setSumOpacity] = React.useState(0)
-  //const [isProblem, setIsProblem] = React.useState(false)
-
+  const [count, setCount] =  useState(0)
+  const [showMember, setShowMember] = useState<members[]>(exampleMembers)
+  const [showData, setShowData] = useState<data[]>([])
+  const [total, setTotal] = useState(0) //test
+  const [addSum, setAddSum] = useState(0)
+  const [sumOpacity, setSumOpacity] = useState(0)
+  const [confirmButtonText, setConfirmButtonText] =  useState("確定")
 
   const handleCancelButton = () => {
     router.navigate('/group_content') 
   }
   const handleConfirmButton = () => {
+    if(confirmButtonText == "儲存"){
+      router.push('/group_content')
+    }
+      
     let count_empty = 0
     let isProblem = false
     if(showData.length == 0){
       Alert.alert('Please fill in data')
       isProblem = true
-      //setIsProblem(true)
     }
     let dealtData = []
     for(let i = 0; i < showData.length; ++i){
@@ -70,7 +72,6 @@ export default function checkSumScreen() {
       if(data.amount=="" && data.userId != 'init'){
         Alert.alert('Amount cannot be empty')
         isProblem = true
-        //setIsProblem(true)
         break
       }
       else if(data.amount=='' && data.userId == 'init')
@@ -78,13 +79,11 @@ export default function checkSumScreen() {
       else if(data.userId == 'init' && parseInt(data.amount) >= 0){
         Alert.alert('Member cannot be empty')
         isProblem = true
-        //setIsProblem(true)
         break
       }
       else if(parseInt(data.amount) < 0){
         Alert.alert('Amount cannot be less than 0')
         isProblem = true
-        //setIsProblem(true)
         break
       }
       else 
@@ -93,7 +92,6 @@ export default function checkSumScreen() {
     if(count_empty == showData.length){
       Alert.alert('Please fill in data')
       isProblem = true
-      //setIsProblem(true)
     }
     console.log(isProblem)
     if(isProblem == false){
@@ -106,6 +104,7 @@ export default function checkSumScreen() {
       console.log('confirm:',showData)
       setAddSum(sum)
       setSumOpacity(1)
+      setConfirmButtonText("儲存")
     }
     
     //router.push('/group_content')*/
@@ -233,7 +232,7 @@ export default function checkSumScreen() {
           onPress={handleConfirmButton}
         >
           <Text color={Colors.text} margin="1%" >
-            確定
+            {confirmButtonText}
           </Text>
         </Button>
       </View>
