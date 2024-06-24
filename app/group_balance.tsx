@@ -46,18 +46,25 @@ interface bills {
 export default function groupContentScreen() {
   const [group, setGroup] = useState('')
   const [groupMembers, setGroupMembers] = useState<members[]>()
-  const [myMemberId, setMyMemberId] = useState('person2')
+  const [myMemberId, setMyMemberId] = useState('')
   const [activeTab, setActiveTab] = useState('group')
   const [groupBalances, setGroupBalances] = useState<balances[]>()
   const [personTransfers, setPersonTransfers] = useState<transfers[]>()
   const router = useRouter()
   const isFocused = useIsFocused()
-
+  const test = () => {
+    console.log('groupBalances', groupBalances)
+    console.log('personTransfers', personTransfers)
+    console.log('myMemberId', myMemberId)
+  }
   const findUserNameByMemberId = (memberId: string): string | null => {
     const member = groupMembers.find((m) => m.memberId === memberId)
     return member ? member.userName : null
   }
-
+  const findMemberIdByUserId = (UserId: string, _members): string | null => {
+    const _member = _members.find((m) => m.userId === UserId)
+    return _member ? _member.memberId : null
+  }
   const handleButtonClick = async () => {
     router.navigate('/group_content')
   }
@@ -220,7 +227,8 @@ export default function groupContentScreen() {
     other_transfer = other_transfer.sort(
       (a, b) => _transfer[b].amount - _transfer[a].amount
     )
-    my_transfer_to.forEach((index) => {
+
+    other_transfer.forEach((index) => {
       sorted_transfer.push({
         from: _transfer[index].from,
         to: _transfer[index].to,
@@ -234,7 +242,7 @@ export default function groupContentScreen() {
         amount: _transfer[index].amount,
       })
     })
-    other_transfer.forEach((index) => {
+    my_transfer_to.forEach((index) => {
       sorted_transfer.push({
         from: _transfer[index].from,
         to: _transfer[index].to,
@@ -249,6 +257,7 @@ export default function groupContentScreen() {
     const prepaidMap = new Map()
     for (let i = 0; i < data.length; i++) {
       const bill = data[i]
+      //console.log('bill data[i]', bill)
       for (let j = 0; j < bill.prepaidPeople.length; j++) {
         const person = bill.prepaidPeople[j]
         if (prepaidMap.has(person.memberId)) {
@@ -272,31 +281,36 @@ export default function groupContentScreen() {
         }
       }
     }
-    const testPrepaidMap = new Map()
+    /*const testPrepaidMap = new Map()
     testPrepaidMap.set('person1', 200)
     testPrepaidMap.set('person2', 200)
     testPrepaidMap.set('person3', 200)
     testPrepaidMap.set('person4', -100)
     testPrepaidMap.set('person5', -300)
-    testPrepaidMap.set('person6', -200)
-    await convertToBalances(testPrepaidMap)
-    await convertToTransfers(testPrepaidMap)
+    testPrepaidMap.set('person6', -200)*/
+    //console.log('prepaidMap', prepaidMap)
+    await convertToBalances(prepaidMap)
+    await convertToTransfers(prepaidMap)
   }
   React.useEffect(() => {
     const getBills = async () => {
       try {
-        var accessToken = await AsyncStorage.getItem('@accessToken')
+        //var accessToken = await AsyncStorage.getItem('@accessToken')
         var group_res = await AsyncStorage.getItem('@currentGroup')
+        const userId = await AsyncStorage.getItem('@userId')
         var _group = JSON.parse(group_res)
 
         setGroup(_group)
+
         var _bill_res = await AsyncStorage.getItem('@currentGroupBills')
         const bill_res: bills[] = JSON.parse(_bill_res)
         var _member_res = await AsyncStorage.getItem('@currentGroupMembers')
         const member_res: members[] = JSON.parse(_member_res)
+        setMyMemberId(findMemberIdByUserId(userId, member_res))
+        //todelet
         //console.log('bill_res', bill_res)
         //console.log('member_res', member_res)
-        var test_member: members[] = [
+        /*var test_member: members[] = [
           {
             memberId: 'person1',
             userId: 'person1',
@@ -333,8 +347,10 @@ export default function groupContentScreen() {
             userName: 'person6_name',
             avatarUrl: '23',
           },
-        ]
-        setGroupMembers(test_member)
+        ]*/
+        setGroupMembers(member_res)
+        //todelete
+        //console.log('bill_res', bill_res)
         await aggregatePrepaidAmounts(bill_res)
         //console.log('groupMembers', groupMembers)
       } catch (e) {
@@ -533,6 +549,7 @@ export default function groupContentScreen() {
       </Tabs>
       <View alignItems="center" justifyContent="center" paddingTop="50px">
         <Button onPress={() => handleButtonClick()}>確定</Button>
+        <Button onPress={test}>test</Button>
       </View>
     </View>
   )

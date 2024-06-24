@@ -78,7 +78,7 @@ export default function checkSumScreen() {
     })
     //console.log('store money', response)
     AsyncStorage.setItem('@check_sumResponse', JSON.stringify(response))
-    AsyncStorage.setItem('@snapshotAmount', JSON.stringify(total))
+    AsyncStorage.setItem('@snapshotAmount', total)
   }
 
   const handleCancelButton = () => {

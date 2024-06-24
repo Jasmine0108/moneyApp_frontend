@@ -156,7 +156,7 @@ export default function groupContentScreen() {
   }
   const handleInsertBill = async () => {
     const newRecord = {
-      /*  groupId: group.groupId,
+      groupId: group.groupId,
       totalMoney: amount,
       title: item,
       description: 'description',
@@ -165,12 +165,12 @@ export default function groupContentScreen() {
         amount: person.amount,
       })),
       splitPeople: participants.map((person) => ({
-        memberId: person.id,
+        memberId: person.memberId,
         amount: person.amount,
       })),
-    }*/
-      //test
-      groupId: group.groupId,
+    }
+    //test
+    /*groupId: group.groupId,
       totalMoney: amount,
       title: item,
       description: 'description',
@@ -186,7 +186,7 @@ export default function groupContentScreen() {
           amount: 350,
         },
       ],
-    }
+    }*/
     console.log('on confirm button pressed, data sent to backend: ')
     console.log('accessToken', accessToken)
     console.log('newRecord', newRecord)
@@ -226,6 +226,9 @@ export default function groupContentScreen() {
     )*/
     try {
       // Assuming GroupService.insertBills is an async function that inserts bills
+      console.log('on delete button pressed, data sent to backend: ')
+      console.log('accessToken', accessToken)
+      console.log('billID', billID)
       await GroupService.deleteBills(accessToken, billID)
       //console.log('billID', billID)
       setChanged(true)
@@ -282,19 +285,20 @@ export default function groupContentScreen() {
     return { total_amount, my_balance }
   }
   //test
+
   const test = async () => {
-    console.log('accessToken', accessToken)
-    console.log('group', group)
-    console.log('GroupBills', groupBills)
-    console.log('GroupMember', members)
-    console.log(
-      'currentGroupBills',
-      await AsyncStorage.getItem('@currentGroupBills')
-    )
-    console.log(
-      'currentGroupMembers',
-      await AsyncStorage.getItem('@currentGroupMembers')
-    )
+    console.log('payer', payer)
+    console.log('participants', participants)
+    console.log('item', item)
+    console.log('amount', amount)
+    //console.log(
+    //  'currentGroupBills',
+    //   await AsyncStorage.getItem('@currentGroupBills')
+    //)
+    //console.log(
+    //  'currentGroupMembers',
+    //  await AsyncStorage.getItem('@currentGroupMembers')
+    //)
   }
   //UseEffect
   React.useEffect(() => {
@@ -347,17 +351,21 @@ export default function groupContentScreen() {
           var snapshotParticipants = await AsyncStorage.getItem(
             '@snapshotParticipants'
           )
+          var check_sumResponse = await AsyncStorage.getItem(
+            '@check_sumResponse'
+          )
           setItem(snapshotItem)
           setAmount(snapshotAmount)
-          //setPayer(JSON.parse(snapshotPayer))
-          // setParticipants(JSON.parse(snapshotParticipants))
-          //console.log('fromPage', _fromPage)
-          //console.log('setItem', snapshotItem)
-          //console.log('setAmount', snapshotAmount)
-          //console.log('setPayer', snapshotPayer)
-          //console.log('setParticipants', snapshotParticipants)
-          await AsyncStorage.setItem('@fromPage', '')
+          if (_fromPage == 'payer') {
+            setPayer(JSON.parse(check_sumResponse))
+            setParticipants(JSON.parse(snapshotParticipants))
+          }
+          if (_fromPage == 'participants') {
+            setPayer(JSON.parse(snapshotPayer))
+            setParticipants(JSON.parse(check_sumResponse))
+          }
         }
+        await AsyncStorage.setItem('@fromPage', '')
         console.log(
           'on entering or refresh the page, received data from backend: '
         )
@@ -829,8 +837,8 @@ export default function groupContentScreen() {
             <Link href="/group">return</Link>
           </Button>
         </View>
-
-        {/*<Button onPress={test}>test</Button>*/}
+        {/*todelete*/}
+        <Button onPress={test}>test</Button>
         <Dialog modal>
           <Dialog.Trigger asChild>
             <Button onPress={generateGroupInviteCode}>Show room number</Button>
