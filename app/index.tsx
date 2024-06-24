@@ -7,6 +7,7 @@ import AuthService from '../services/auth/auth'
 import UserService from '../services/user/user'
 import { Alert } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { User } from '../services/interface'
 
 function LoginScreen() {
   const router = useRouter()
