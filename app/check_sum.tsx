@@ -113,6 +113,7 @@ export default function checkSumScreen() {
   const handleAddButton = () => {
     if(count < exampleMembers.length){
       setSumOpacity(0)
+      setConfirmButtonText("確定")
       let tmpData = showData
       let tmpRow = { name: '', rowId: count.toString(), userId:"init", amount: "", avatar:'https://images.unsplash.com/photo-1531384441138-2736e62e0919?&w=100&h=100&dpr=2&q=80' }
       tmpData.push(tmpRow)
@@ -126,6 +127,7 @@ export default function checkSumScreen() {
   
   const handleOnSelectFinished = (selectRowId: string,  selectUserId: string) => {
     setSumOpacity(0)
+    setConfirmButtonText("確定")
     const updatedData = showData.map(data => {
       if (data.rowId === selectRowId) {
         return { name:data.name, rowId: selectRowId, userId:selectUserId, amount: data.amount, avatar: data.avatar}
@@ -138,6 +140,7 @@ export default function checkSumScreen() {
 
   const handleShowMember = (value: string) => {
     setSumOpacity(0)
+    setConfirmButtonText("確定")
     var pre_now_select = value.split(',')
     //console.log('pre_new_select', pre_now_select)
     //setOldSelectId(pre_now_select[0])
@@ -157,6 +160,7 @@ export default function checkSumScreen() {
   }
   const getAmount =(inputRowId: string, money: string)=> { 
     setSumOpacity(0)
+    setConfirmButtonText("確定")
     const updatedData = showData.map(data => {
       if (data.rowId === inputRowId) {  
         return { name:data.name, rowId: data.rowId, userId:data.userId, amount: money, avatar: data.avatar};
@@ -169,6 +173,7 @@ export default function checkSumScreen() {
   }
   const handleTotal =(text: string) =>{
     setSumOpacity(0)
+    setConfirmButtonText("確定")
     setTotal(parseInt(text))
   }
 
