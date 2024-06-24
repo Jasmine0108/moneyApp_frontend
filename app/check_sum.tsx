@@ -7,10 +7,9 @@ import { Entypo, Ionicons, AntDesign } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage' 
 import { useIsFocused } from '@react-navigation/native'
 import { Alert } from 'react-native'
-import { Member } from '../services/interface'
+import { Member, PrepaidPerson } from '../services/interface'
 
 interface data {
-  name: string
   rowId: string
   userId: string
   amount: string
@@ -53,12 +52,27 @@ export default function checkSumScreen() {
     var _amount = await AsyncStorage.getItem('@snapshotAmount')  
     setTotal(_amount)
   }
-
+  
+  const storeMoney = async() => {
+    const filteredResponse = showData.filter(data => {
+      if(data.userId != 'init')
+        return data
+    })
+    const response = filteredResponse.map(data =>{
+      let user = memberInfo.find(member => member.userId === data.userId)
+      return {memberId:user.memberId, amount:parseInt(data.amount), username: user.userName}
+    })
+    console.log('store money', response)
+    AsyncStorage.setItem('@check_sumResponse', JSON.stringify(response))
+  }
+    
+  
   const handleCancelButton = () => {
     router.navigate('/group_content') 
   }
   const handleConfirmButton = () => {
     if(confirmButtonText == "儲存"){
+      storeMoney()
       router.push('/group_content')
     }
       
@@ -131,7 +145,7 @@ export default function checkSumScreen() {
     setConfirmButtonText("確定")
     const updatedData = showData.map(data => {
       if (data.rowId === selectRowId) {
-        return { name:data.name, rowId: selectRowId, userId:selectUserId, amount: data.amount, avatar: data.avatar}
+        return { rowId: selectRowId, userId:selectUserId, amount: data.amount, avatar: data.avatar}
       }
       return data;
     })
@@ -164,7 +178,7 @@ export default function checkSumScreen() {
     setConfirmButtonText("確定")
     const updatedData = showData.map(data => {
       if (data.rowId === inputRowId) {  
-        return { name:data.name, rowId: data.rowId, userId:data.userId, amount: money, avatar: data.avatar};
+        return { rowId: data.rowId, userId:data.userId, amount: money, avatar: data.avatar};
       }
       return data
     })
