@@ -86,7 +86,7 @@ class GroupService {
       return data
   }
   async getBillsHistory(accessToken: string, groupId: string){
-    const res = await fetch(`${API_URL}v1/group_bill/history?skip=0&limit=10&groupId=${groupId}`, {
+    const res = await fetch(`${API_URL}v1/groups_bill/history?skip=0&limit=10&groupId=${groupId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${accessToken}`,

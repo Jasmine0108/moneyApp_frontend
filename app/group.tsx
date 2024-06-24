@@ -33,17 +33,18 @@ export default function groupScreen() {
       console.log(e)
     }
     const res = await AuthService.listGroup(accessToken)
-    console.log('res', res)
+    //console.log('res', res)
     let tmp_groups = []
     let tmp_groupIds = []
-
+    console.log('on entering the page, received data from backend: ')
+    console.log('group participted in: ', res)
     for (var i = 0; i < res.groups.length; ++i) {
       tmp_groups.push(res.groups[i])
       tmp_groupIds.push(res.groups[i].groupId)
     }
     setGroups(tmp_groups)
     setGroupIds(tmp_groupIds)
-    console.log('new group: ', tmp_groups)
+    //console.log('new group: ', tmp_groups)
   }
   const handleAddGroup = () => {
     router.push('/plus_group')
@@ -67,7 +68,7 @@ export default function groupScreen() {
       console.log(e)
     }
     var _groupId = JSON.parse(_group).groupId
-    console.log('_groupId', _group)
+    //console.log('_groupId', _group)
     const res = await AuthService.deleteGroup(_groupId, accessToken)
     /*if (res.code == null)
         Alert.alert('Delete success')*/
@@ -77,8 +78,8 @@ export default function groupScreen() {
 
   const handleLongPress = async (index: number) => {
     try {
-      console.log('e')
-      console.log('stringify', groups[index])
+      //console.log('e')
+      //console.log('stringify', groups[index])
       await AsyncStorage.setItem('@currentGroup', JSON.stringify(groups[index]))
       //handleDeleteButton()
       //await AsyncStorage.setItem('@currentGroupName', groupName)

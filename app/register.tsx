@@ -13,12 +13,16 @@ export default function loginScreen() {
   const [confirmPass, setConfirmPass] = React.useState('')
   const [passError, setPassError] = React.useState(false)
   const handleRegister = async () => {
-    console.log(account, pass, confirmPass)
+    //console.log(account, pass, confirmPass)
     if (pass !== confirmPass) {
       console.log('密碼不一致')
       setPassError(true)
     }
+    console.log('on regirter button pressed, data sent to backend: ')
+    console.log('account: ', account)
+    console.log('password: ', pass)
     const res = await AuthService.register(account, pass)
+
     if (res.code && res.code != 0) {
       if (res.message === 'Email already exists.') {
         Alert.alert('Email already exists.')

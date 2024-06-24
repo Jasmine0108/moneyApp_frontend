@@ -19,6 +19,9 @@ function LoginScreen() {
     { content: '密碼', set: setPassword },
   ]
   const handleLogin = async () => {
+    console.log('on login button pressed, data sent to backend: ')
+    console.log('account: ', account)
+    console.log('password: ', password)
     const res = await AuthService.login(account, password)
     if (res.code && res.code != 0) {
       if (res.code == 5) {
@@ -33,30 +36,32 @@ function LoginScreen() {
     } catch (e) {
       console.log(e)
     }
+    console.log('response: ')
     console.log('accessToken:', res.accessToken)
     console.log('userId:', res.userId)
-    const res_user_info = await UserService.getUserInfo(res.accessToken, res.userId)
-    console.log('res_user_info', res_user_info)
-    console.log('res_user_info.avatarUrl', res_user_info.avatarUrl)
-    var new_info: User = {id: res.userId, name: res_user_info.name, avatarUrl: res_user_info.avatarUrl}
-    setUserInfo(new_info)
-    try{
-      await AsyncStorage.setItem(
-        '@currentUser',
-        JSON.stringify(new_info)
-      )
+    const res_user_info = await UserService.getUserInfo(
+      res.accessToken,
+      res.userId
+    )
+    console.log('fetching user data by accessToken and userId...')
+    console.log('response: ')
+    console.log('user_info', res_user_info)
+    var new_info: User = {
+      id: res.userId,
+      name: res_user_info.name,
+      avatarUrl: res_user_info.avatarUrl,
     }
-    catch(e){
+    setUserInfo(new_info)
+    try {
+      await AsyncStorage.setItem('@currentUser', JSON.stringify(new_info))
+    } catch (e) {
       console.log(e)
     }
-    
-    if(res_user_info.name == "無名氏")
-      router.navigate('/set_user_name')
-    else
-      router.push('/group')
-      
+
+    if (res_user_info.name == '無名氏') router.navigate('/set_user_name')
+    else router.push('/group')
   }
-  
+
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
       <Text fontSize="36" color={Colors.text} margin="5%">

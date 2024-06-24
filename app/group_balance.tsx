@@ -75,7 +75,7 @@ export default function groupContentScreen() {
     const sortedBalancesDesc = balancesArray.sort(
       (a, b) => b.balance - a.balance
     )
-    console.log('balances', sortedBalancesDesc)
+    //console.log('balances', sortedBalancesDesc)
     setGroupBalances(sortedBalancesDesc)
   }
   function convertToTransfers(_data) {
@@ -242,7 +242,7 @@ export default function groupContentScreen() {
       })
     })
     setPersonTransfers(sorted_transfer)
-    console.log('trasfer', sorted_transfer)
+    // console.log('trasfer', sorted_transfer)
   }
 
   async function aggregatePrepaidAmounts(data) {
@@ -294,8 +294,8 @@ export default function groupContentScreen() {
         const bill_res: bills[] = JSON.parse(_bill_res)
         var _member_res = await AsyncStorage.getItem('@currentGroupMembers')
         const member_res: members[] = JSON.parse(_member_res)
-        console.log('bill_res', bill_res)
-        console.log('member_res', member_res)
+        //console.log('bill_res', bill_res)
+        //console.log('member_res', member_res)
         var test_member: members[] = [
           {
             memberId: 'person1',
@@ -336,7 +336,7 @@ export default function groupContentScreen() {
         ]
         setGroupMembers(test_member)
         await aggregatePrepaidAmounts(bill_res)
-        console.log('groupMembers', groupMembers)
+        //console.log('groupMembers', groupMembers)
       } catch (e) {
         console.log(e)
       }

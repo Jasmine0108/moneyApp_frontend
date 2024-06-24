@@ -187,11 +187,13 @@ export default function groupContentScreen() {
         },
       ],
     }
-
+    console.log('on confirm button pressed, data sent to backend: ')
+    console.log('accessToken', accessToken)
+    console.log('newRecord', newRecord)
     try {
       await GroupService.insertBills(accessToken, newRecord)
-      console.log('member', members)
-      console.log('newRecord', newRecord)
+      //console.log('member', members)
+      // console.log('newRecord', newRecord)
       setChanged(true)
       setAmount('')
       setItem('')
@@ -225,7 +227,7 @@ export default function groupContentScreen() {
     try {
       // Assuming GroupService.insertBills is an async function that inserts bills
       await GroupService.deleteBills(accessToken, billID)
-      console.log('billID', billID)
+      //console.log('billID', billID)
       setChanged(true)
     } catch (error) {
       console.error('Error deleting record:', error)
@@ -240,7 +242,12 @@ export default function groupContentScreen() {
     return _member ? _member.memberId : null
   }
   const generateGroupInviteCode = async () => {
+    console.log('on show room number pressed, data sent to backend: ')
+    console.log('accessToken', accessToken)
+    console.log('groupId', group.groupId)
     const res = await AuthService.setGroupInviteCode(accessToken, group.groupId)
+    console.log('res: ')
+    console.log('inviteCode', res)
     //console.log('res_invite', res)
     //console.log('inviteCode: ', res.inviteCode)
     setInviteCode(res.inviteCode)
@@ -248,9 +255,9 @@ export default function groupContentScreen() {
   async function aggregation(data, userId: string, _members) {
     //data is the array of all bills for the current group
     var _myMemberId = findMemberIdByUserId(userId, _members)
-    console.log('_members', _members)
-    console.log('userId', userId)
-    console.log('_myMemberId', _myMemberId)
+    //console.log('_members', _members)
+    //console.log('userId', userId)
+    //console.log('_myMemberId', _myMemberId)
     var total_amount: number = 0
     var my_balance: number = 0
     for (let i = 0; i < data.length; i++) {
@@ -270,8 +277,8 @@ export default function groupContentScreen() {
       }
     }
     //desired attribute total_amount and my_balance are calculated
-    console.log('total_amount', total_amount)
-    console.log('my_balance', my_balance)
+    //console.log('total_amount', total_amount)
+    //console.log('my_balance', my_balance)
     return { total_amount, my_balance }
   }
   //test
@@ -296,7 +303,7 @@ export default function groupContentScreen() {
         const _accessToken = await AsyncStorage.getItem('@accessToken')
         const JSON_group = await AsyncStorage.getItem('@currentGroup')
         const userId = await AsyncStorage.getItem('@userId')
-        console.log('@userid', userId)
+        // console.log('@userid', userId)
         setAccessToken(_accessToken)
         const _group = JSON.parse(JSON_group)
         setGroup(_group)
@@ -312,7 +319,7 @@ export default function groupContentScreen() {
           _accessToken,
           _group.groupId
         )
-        console.log('_group._accessToken', _accessToken)
+        //console.log('_group._accessToken', _accessToken)
         setGroupBills(bill_res.groupBills)
         setMember(member_res.members) // member_res.members 是包含 id 和 name 属性的数组
         setBillsHistory(history_res.histories)
@@ -324,7 +331,7 @@ export default function groupContentScreen() {
           '@currentGroupMembers',
           JSON.stringify(member_res.members)
         )
-        console.log('history_res', history_res)
+        //console.log('history_res', history_res)
         const { total_amount, my_balance } = await aggregation(
           bill_res.groupBills,
           userId,
@@ -344,13 +351,19 @@ export default function groupContentScreen() {
           setAmount(snapshotAmount)
           //setPayer(JSON.parse(snapshotPayer))
           // setParticipants(JSON.parse(snapshotParticipants))
-          console.log('fromPage', _fromPage)
-          console.log('setItem', snapshotItem)
-          console.log('setAmount', snapshotAmount)
-          console.log('setPayer', snapshotPayer)
-          console.log('setParticipants', snapshotParticipants)
+          //console.log('fromPage', _fromPage)
+          //console.log('setItem', snapshotItem)
+          //console.log('setAmount', snapshotAmount)
+          //console.log('setPayer', snapshotPayer)
+          //console.log('setParticipants', snapshotParticipants)
           await AsyncStorage.setItem('@fromPage', '')
         }
+        console.log(
+          'on entering or refresh the page, received data from backend: '
+        )
+        console.log('GroupBills', bill_res.groupBills)
+        console.log('GroupMember: ', member_res.members)
+        console.log('BillsEditHistory', history_res.histories)
       } catch (e) {
         console.log(e)
       }
@@ -524,7 +537,7 @@ export default function groupContentScreen() {
                     displayKey="name"
                     selectedItems={payer}
                     onSelectedItemsChange={setPayer}
-                    onToggleList={() => console.log('aaaa')}
+                    onToggleList={() => null}
                     selectText="  付款人"
                     styleDropdownMenu={{ backgroundColor: 'white' }}
                     searchInputStyle={{ height: 0 }} // This hides the search input by reducing its height to zero
@@ -817,8 +830,7 @@ export default function groupContentScreen() {
           </Button>
         </View>
 
-        <Button onPress={test}>test</Button>
-        <Link href="/check_sum">goto checksum, for test</Link>
+        {/*<Button onPress={test}>test</Button>*/}
         <Dialog modal>
           <Dialog.Trigger asChild>
             <Button onPress={generateGroupInviteCode}>Show room number</Button>

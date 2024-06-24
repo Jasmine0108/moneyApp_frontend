@@ -7,6 +7,11 @@ class AuthService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
+    if(res.status!=200){
+      console.log("register: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -15,6 +20,11 @@ class AuthService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
+    if(res.status!=200){
+      console.log("login: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -27,6 +37,11 @@ class AuthService {
       },
       body: JSON.stringify({name}),
     })
+    if(res.status!=200){
+      console.log("createGroup: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -38,6 +53,11 @@ class AuthService {
         'Content-Type': 'application/json'
       }
     })
+    if(res.status!=200){
+      console.log("listGroup: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -50,6 +70,11 @@ class AuthService {
       },
       body: JSON.stringify({groupId}),
     })
+    if(res.status!=200){
+      console.log("deleteGroup: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -61,6 +86,11 @@ class AuthService {
         'Content-Type': 'application/json'
       }
     })
+    if(res.status!=200){
+      console.log("getGroupInfo: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -73,6 +103,11 @@ class AuthService {
       },
       body: JSON.stringify({groupId}),
     })
+    if(res.status!=200){
+      console.log("setGroupInviteCode: error, status: ", res.status)
+      console.log("res: ", res)
+      return""
+    }
     const data = await res.json()
     return data
   }
@@ -97,6 +132,11 @@ class AuthService {
         },
         body: JSON.stringify({inviteCode}),
       })
+      if(res.status!=200){
+        console.log("joinGroup: error, status: ", res.status)
+        console.log("res: ", res)
+        return""
+      }
       const data = await res.json()
       return data
     }
@@ -108,8 +148,13 @@ class AuthService {
           'Content-Type': 'application/json'
         }
       })
+      if(res.status!=200){
+        console.log("listGroupMember: error, status: ", res.status)
+        console.log("res: ", res)
+        return""
+      }
       const data = await res.json()
-      console.log('data', data)
+      //console.log('data', data)
       return data
     }
 
