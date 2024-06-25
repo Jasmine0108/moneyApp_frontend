@@ -86,6 +86,7 @@ export default function groupContentScreen() {
     setGroupBalances(sortedBalancesDesc)
   }
   function convertToTransfers(_data) {
+    //console.log(_data)
     var _transfer: transfers[] = [] // interface : from, to, amount
     var sorted_transfer: transfers[] = []
     var creditors: balances[] = [] // remittee
@@ -102,6 +103,8 @@ export default function groupContentScreen() {
           balance: value,
         })
     })
+    //console.log('creditors', creditors)
+    //console.log('deditors', deditors)
     // from 1 to 1
     for (var i = 0; i < creditors.length; ++i) {
       for (var j = 0; j < deditors.length; ++j) {
@@ -163,12 +166,12 @@ export default function groupContentScreen() {
             _transfer.push({
               from: deditors[i].id,
               to: creditors[k].id,
-              amount: creditors[i].balance,
+              amount: deditors[i].balance,
             })
             _transfer.push({
               from: deditors[j].id,
               to: creditors[k].id,
-              amount: creditors[j].balance,
+              amount: deditors[j].balance,
             })
             deditors[i].balance = 0
             deditors[j].balance = 0
@@ -206,6 +209,9 @@ export default function groupContentScreen() {
         deditors[p].balance = 0
       }
     }
+    //console.log(my_transfer_from, 'my_transfer_from')
+    //console.log(my_transfer_to, 'my_transfer_to')
+    //console.log(other_transfer, 'other_transfer')
     var my_transfer_from: number[] = []
     var my_transfer_to: number[] = []
     var other_transfer: number[] = []

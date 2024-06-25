@@ -62,7 +62,7 @@ export default function RootLayout() {
             name="join_group"
             options={{ headerTitle: 'joinGroupPage', headerShown: false }}
           />
-          
+
           <Stack.Screen
             name="check_sum"
             options={{ headerTitle: 'checkSumPage', headerShown: false }}
@@ -75,7 +75,14 @@ export default function RootLayout() {
             name="update_user_name"
             options={{ headerTitle: 'setUserNamePage', headerShown: false }}
           />
-    
+          <Stack.Screen
+            name="modify_bill"
+            options={{ headerTitle: 'modifyBillPage', headerShown: false }}
+          />
+          <Stack.Screen
+            name="modify_multi"
+            options={{ headerTitle: 'modifyMultiPage', headerShown: false }}
+          />
         </Stack>
       </ThemeProvider>
     </TamaguiProvider>
