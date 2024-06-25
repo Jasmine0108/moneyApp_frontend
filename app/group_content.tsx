@@ -34,39 +34,6 @@ const ShadowView = styled(View, {
   margin: 20,
 })
 
-const exampleHistory = [
-  {
-    type: 'create',
-    operatorName: 'string',
-    title: 'item1',
-    timestamp: '2024-06-23T13:45:28.116Z',
-  },
-  {
-    type: 'delete',
-    operatorName: 'string',
-    title: 'item2',
-    timestamp: '2024-06-24T13:45:28.116Z',
-  },
-  {
-    type: 'create',
-    operatorName: 'string',
-    title: 'item3',
-    timestamp: '2024-06-25T13:45:28.116Z',
-  },
-  {
-    type: 'create',
-    operatorName: 'string',
-    title: 'item4',
-    timestamp: '2024-06-26T13:45:28.116Z',
-  },
-  {
-    type: 'modify',
-    operatorName: 'string',
-    title: 'item5',
-    timestamp: '2024-06-27T13:45:28.116Z',
-  },
-]
-
 export default function groupContentScreen() {
   ////////////////////////////////////////////////////////////////////////////useState
   //insertion
@@ -111,6 +78,9 @@ export default function groupContentScreen() {
   const onpressSort = () => {
     alert('press sort, WIP')
   }
+  const handleErrorInsert = (message: string) => {
+    alert(message)
+  }
   const copyToClipboard = async () => {
     try {
       await Clipboard.setStringAsync(inviteCode)
@@ -154,7 +124,39 @@ export default function groupContentScreen() {
   const handleSummerize = async () => {
     router.push('/group_balance')
   }
+  const amountTest = async (_amount: string, _payer, _participants) => {
+    var prepaid_amount = _payer.reduce(
+      (total, person) => total + person.amount,
+      0
+    )
+    var paid_amount = _participants.reduce(
+      (total, person) => total + person.amount,
+      0
+    )
+    var total = parseInt(_amount, 10)
+    if (prepaid_amount != paid_amount) {
+      return 'payers total amount should equal to participants total amount'
+    }
+    if (prepaid_amount != total) {
+      return 'amount should equal to sum of payers and participants amount'
+    }
+    return 'passed'
+  }
+
   const handleInsertBill = async () => {
+    if (amount == '0' || amount == '') {
+      handleErrorInsert('can not insert bill with 0 amount')
+      return
+    }
+    if (item == '') {
+      handleErrorInsert('can not insert bill without title')
+      return
+    }
+    var ifPassed = await amountTest(amount, payer, participants)
+    if (ifPassed != 'passed') {
+      handleErrorInsert(ifPassed)
+      return
+    }
     const newRecord = {
       groupId: group.groupId,
       totalMoney: amount,
@@ -199,6 +201,15 @@ export default function groupContentScreen() {
       setItem('')
     } catch (error) {
       console.error('Error adding record:', error)
+    }
+  }
+  const handleModifyRecord = async (billID: string) => {
+    try {
+      // Assuming GroupService.insertBills is an async function that inserts bills
+      await AsyncStorage.setItem('@currentBillIdModify', billID)
+      router.push('/modify_bill')
+    } catch (error) {
+      console.error('Error deleting record:', error)
     }
   }
   const handleDeleteRecord = async (billID: string) => {
@@ -327,6 +338,10 @@ export default function groupContentScreen() {
         setGroupBills(bill_res.groupBills)
         setMember(member_res.members) // member_res.members 是包含 id 和 name 属性的数组
         setBillsHistory(history_res.histories)
+        setPayer([])
+        setParticipants([])
+        setItem('')
+        setAmount('')
         await AsyncStorage.setItem(
           '@currentGroupBills',
           JSON.stringify(bill_res.groupBills)
@@ -357,15 +372,30 @@ export default function groupContentScreen() {
           setItem(snapshotItem)
           setAmount(snapshotAmount)
           if (_fromPage == 'payer') {
-            setPayer(JSON.parse(check_sumResponse))
+            console.log('check_sumResponse', check_sumResponse)
+            if (check_sumResponse != '') {
+              setPayer(JSON.parse(check_sumResponse))
+            } else {
+              setPayer([])
+            }
             setParticipants(JSON.parse(snapshotParticipants))
           }
           if (_fromPage == 'participants') {
+            console.log('check_sumResponse', check_sumResponse)
             setPayer(JSON.parse(snapshotPayer))
-            setParticipants(JSON.parse(check_sumResponse))
+            if (check_sumResponse != '') {
+              setParticipants(JSON.parse(check_sumResponse))
+            } else {
+              setParticipants([])
+            }
           }
         }
         await AsyncStorage.setItem('@fromPage', '')
+        await AsyncStorage.setItem('@snapshotAmount', '')
+        await AsyncStorage.setItem('@snapshotItem', '')
+        await AsyncStorage.setItem('@snapshotPayer', '')
+        await AsyncStorage.setItem('@snapshotParticipants', '')
+        await AsyncStorage.setItem('@check_sumResponse', '')
         console.log(
           'on entering or refresh the page, received data from backend: '
         )
@@ -729,6 +759,13 @@ export default function groupContentScreen() {
                   </View>
                   <Button
                     size={30}
+                    onPress={() => handleModifyRecord(bill.billId)}
+                    style={{ marginLeft: 10, fontSize: 10 }}
+                  >
+                    修改
+                  </Button>
+                  <Button
+                    size={30}
                     onPress={() => handleDeleteRecord(bill.billId)}
                     style={{ marginLeft: 10, fontSize: 10 }}
                   >
@@ -874,11 +911,9 @@ export default function groupContentScreen() {
               y={0}
             >
               <YStack alignItems="center" justifyContent="center">
-              
-                <Dialog.Title color={Colors.text} fontSize={20}>
-                  群組名稱
-                </Dialog.Title>
-                
+
+                <Dialog.Title color={Colors.text} fontSize={20}></Dialog.Title>
+
                 <View height="7%" />
                 <XStack height="30%" alignItems="center">
                   <Dialog.Title color={Colors.text} fontSize={20}>
