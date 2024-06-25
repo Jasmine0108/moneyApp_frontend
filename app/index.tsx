@@ -31,7 +31,7 @@ function LoginScreen() {
     else{
       const res = await AuthService.login(account, password)
       console.log('login_res', res)
-      if (res=='') {
+      if (res=="login_error") {
         Alert.alert('帳號或密碼錯誤')
         router.navigate('/')  
       }

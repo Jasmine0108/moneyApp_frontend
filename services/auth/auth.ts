@@ -10,7 +10,7 @@ class AuthService {
     if(res.status!=200){
       console.log("register: error, status: ", res.status)
       console.log("res: ", res)
-      return "login_error"
+      return "register_error"
     }
     const data = await res.json()
     return data
@@ -23,7 +23,7 @@ class AuthService {
     if(res.status!=200){
       console.log("login: error, status: ", res.status)
       console.log("res: ", res)
-      return""
+      return "login_error"
     }
     const data = await res.json()
     return data

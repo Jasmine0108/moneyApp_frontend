@@ -13,7 +13,6 @@ export default function loginScreen() {
   const [confirmPass, setConfirmPass] = React.useState('')
   const [passError, setPassError] = React.useState(false)
   const handleRegister = async () => {
-    //console.log(account, pass, confirmPass)
     if (pass !== confirmPass) {
       console.log('密碼不一致')
       setPassError(true)
@@ -22,19 +21,35 @@ export default function loginScreen() {
     console.log('account: ', account)
     console.log('password: ', pass)
     const res = await AuthService.register(account, pass)
-
-    if (res.code && res.code != 0) {
-      if (res.message === 'Email already exists.') {
-        Alert.alert('Email already exists.')
-        router.navigate('/')
-      } else {
-        Alert.alert('Register failed. Please try again.')
-      }
-    } else {
-      Alert.alert('Register success.')
-      router.navigate('/')
+    console.log('res_register', res)
+    if(account.length == 0 ){
+      Alert.alert('Account cannot be empty.')
     }
+    else if(pass.length == 0){
+      Alert.alert('Password cannot be empty.')
+    }
+    else if(confirmPass.length == 0){
+      Alert.alert('Confirm password cannot be empty.')
+    }
+    else{
+      if (res=="register_error") {
+        /*
+        if (res.message === 'Email already exists.') {
+          Alert.alert('Email already exists.')
+          router.navigate('/')
+        } else {
+          Alert.alert('Register failed. Please try again.')
+        }*/
+        Alert.alert('Email already exists.')
+      }
+      
+      else {
+        Alert.alert('Register success.')
+        router.navigate('/')
+      }
+    }  
   }
+  
   const input = [
     { content: '帳號', set: setAccount },
     { content: '密碼', set: setPass },
