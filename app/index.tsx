@@ -19,6 +19,9 @@ function LoginScreen() {
     { content: '密碼', set: setPassword },
   ]
   const handleLogin = async () => {
+    console.log('on login button pressed, data sent to backend: ')
+    console.log('account: ', account)
+    console.log('password: ', password)
     if(account.length == 0 ){
       Alert.alert('Account cannot be empty.')
     }
