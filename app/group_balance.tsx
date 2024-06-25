@@ -166,12 +166,12 @@ export default function groupContentScreen() {
             _transfer.push({
               from: deditors[i].id,
               to: creditors[k].id,
-              amount: deditors[i].balance,
+              amount: -deditors[i].balance,
             })
             _transfer.push({
               from: deditors[j].id,
               to: creditors[k].id,
-              amount: deditors[j].balance,
+              amount: -deditors[j].balance,
             })
             deditors[i].balance = 0
             deditors[j].balance = 0
