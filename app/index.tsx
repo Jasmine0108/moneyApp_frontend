@@ -22,47 +22,52 @@ function LoginScreen() {
     console.log('on login button pressed, data sent to backend: ')
     console.log('account: ', account)
     console.log('password: ', password)
-    const res = await AuthService.login(account, password)
-    if (res.code && res.code != 0) {
-      if (res.code == 5) {
-        Alert.alert('Email not found.')
+    if(account.length == 0 ){
+      Alert.alert('Account cannot be empty.')
+    }
+    else if(password.length == 0){
+      Alert.alert('Password cannot be empty.')
+    }
+    else{
+      const res = await AuthService.login(account, password)
+      console.log('login_res', res)
+      if (res=="login_error") {
+        Alert.alert('帳號或密碼錯誤')
+        router.navigate('/')  
       }
-      return
-    }
-    try {
-      //await AsyncStorage.setItem('@userId', res.userId)
-      await AsyncStorage.setItem('@accessToken', res.accessToken)
-      await AsyncStorage.setItem('@refreshToken', res.refreshToken)
-      await AsyncStorage.setItem('@userId', res.userId)
-    } catch (e) {
-      console.log(e)
-    }
-    console.log('response: ')
-    console.log('accessToken:', res.accessToken)
-    console.log('userId:', res.userId)
-    const res_user_info = await UserService.getUserInfo(
-      res.accessToken,
-      res.userId
-    )
-    console.log('fetching user data by accessToken and userId...')
-    console.log('response: ')
-    console.log('user_info', res_user_info)
-    var new_info: User = {
-      id: res.userId,
-      name: res_user_info.name,
-      avatarUrl: res_user_info.avatarUrl,
-    }
-    setUserInfo(new_info)
-    try {
-      await AsyncStorage.setItem('@currentUser', JSON.stringify(new_info))
-    } catch (e) {
-      console.log(e)
-    }
-
-    if (res_user_info.name == '無名氏') router.navigate('/set_user_name')
-    else router.push('/group')
+      else {
+        try {
+          await AsyncStorage.setItem('@accessToken', res.accessToken)
+          await AsyncStorage.setItem('@refreshToken', res.refreshToken)
+          await AsyncStorage.setItem('@userId', res.userId)
+        } catch (e) {
+          console.log(e)
+        }
+        console.log('accessToken:', res.accessToken)
+        console.log('userId:', res.userId)
+        const res_user_info = await UserService.getUserInfo(res.accessToken, res.userId)
+        console.log('res_user_info', res_user_info)
+        console.log('res_user_info.avatarUrl', res_user_info.avatarUrl)
+        var new_info: User = {id: res.userId, name: res_user_info.name, avatarUrl: res_user_info.avatarUrl}
+        setUserInfo(new_info)
+        try{
+          await AsyncStorage.setItem(
+            '@currentUser',
+            JSON.stringify(new_info)
+          )
+        }
+        catch(e){
+          console.log(e)
+        }
+        
+        if(res_user_info.name == "無名氏")
+          router.navigate('/set_user_name')
+        else
+          router.push('/group')   
+      }
+    }  
   }
-
+  
   return (
     <View bg={Colors.bg} alignItems="center" justifyContent="center" flex={1}>
       <Text fontSize="36" color={Colors.text} margin="5%">

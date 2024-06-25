@@ -911,7 +911,9 @@ export default function groupContentScreen() {
               y={0}
             >
               <YStack alignItems="center" justifyContent="center">
+
                 <Dialog.Title color={Colors.text} fontSize={20}></Dialog.Title>
+
                 <View height="7%" />
                 <XStack height="30%" alignItems="center">
                   <Dialog.Title color={Colors.text} fontSize={20}>
