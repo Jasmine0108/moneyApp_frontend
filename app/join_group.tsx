@@ -21,10 +21,14 @@ export default function inputGroupScreen() {
     console.log('accessToken', accessToken)
     console.log('inviteCode', inviteCode)
     const res = await AuthService.joinGroup(accessToken, inviteCode)
-    if(res == "join_group_error"){
+    if(res == "Member_already_exists"){
+      Alert.alert('You are already in this group')
+    } 
+    else if(res == "join_group_error"){
       Alert.alert('Wrong room number')
     }
     else{
+      Alert.alert('Join Success')
       router.navigate('/group')
     }
 
