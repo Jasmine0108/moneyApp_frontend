@@ -39,6 +39,7 @@ function LoginScreen() {
         try {
           await AsyncStorage.setItem('@accessToken', res.accessToken)
           await AsyncStorage.setItem('@refreshToken', res.refreshToken)
+          await AsyncStorage.setItem('@userId', res.userId)
         } catch (e) {
           console.log(e)
         }
