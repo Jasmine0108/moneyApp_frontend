@@ -135,7 +135,7 @@ class AuthService {
       if(res.status!=200){
         console.log("joinGroup: error, status: ", res.status)
         console.log("res: ", res)
-        return""
+        return "join_group_error"
       }
       const data = await res.json()
       return data

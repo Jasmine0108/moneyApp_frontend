@@ -4,6 +4,7 @@ import { Colors } from '../constants/Colors'
 import { useRouter } from 'expo-router'
 import AuthService from '../services/auth/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Alert } from 'react-native'
 
 export default function inputGroupScreen() {
   const router = useRouter()
@@ -20,11 +21,17 @@ export default function inputGroupScreen() {
     console.log('accessToken', accessToken)
     console.log('inviteCode', inviteCode)
     const res = await AuthService.joinGroup(accessToken, inviteCode)
+    if(res == "join_group_error"){
+      Alert.alert('Wrong room number')
+    }
+    else{
+      router.navigate('/group')
+    }
 
     //console.log('res_join_group', res)
     //console.log('joined groupId:', res.groupId)
     //console.log('joined group member:', res.memberId)
-    router.navigate('/group')
+    
   }
   const handleCancelButton = async () => {
     router.navigate('/group')
