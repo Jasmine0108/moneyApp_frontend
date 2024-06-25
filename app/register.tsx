@@ -13,16 +13,17 @@ export default function loginScreen() {
   const [confirmPass, setConfirmPass] = React.useState('')
   const [passError, setPassError] = React.useState(false)
   const handleRegister = async () => {
-    if (pass !== confirmPass) {
-      console.log('密碼不一致')
-      setPassError(true)
-    }
+    
     console.log('on regirter button pressed, data sent to backend: ')
     console.log('account: ', account)
     console.log('password: ', pass)
     const res = await AuthService.register(account, pass)
     console.log('res_register', res)
-    if(account.length == 0 ){
+    if (pass !== confirmPass) {
+      console.log('密碼不一致')
+      setPassError(true)
+    }
+    else if(account.length == 0 ){
       Alert.alert('Account cannot be empty.')
     }
     else if(pass.length == 0){
